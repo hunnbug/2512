@@ -27,6 +27,12 @@ func Run() {
 
 	r.POST("/login", handlers.PostUserHandler)
 
+	//listeners
+	r.POST("/listeners", handlers.CreateListener)
+
+	//LevelEducation
+	r.POST("/levelEducation", handlers.LevelEducationCreate)
+
 	r.Run("localhost:8080")
 
 }
