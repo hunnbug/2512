@@ -20,13 +20,13 @@ func PostUserHandler(ctx *gin.Context) {
 		Password string
 	}
 
-	log.Println("took POST req")
+	log.Println("получен запрос ")
 
 	var _loggedUser loggedUser
 
 	ctx.BindJSON(&_loggedUser)
 
-	log.Println("logged user: ", _loggedUser)
+	log.Println("логин: ", _loggedUser)
 
 	var user models.User
 
@@ -36,25 +36,29 @@ func PostUserHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		log.Println("user not found")
+		log.Println("пользователь не найден")
 
-		ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "cannot find user by login"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неправильный логин!"})
+
+		tx.Rollback()
 
 		return
 
 	}
+
+	tx.Commit()
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password)) // линьганьгулигулигуливочалиньганьгулиньганьгу
 
 	if err != nil {
-		log.Println("given password does not match hash")
+		log.Println("пароль не совпадает с хешем")
 
-		ctx.JSON(http.StatusForbidden, models.ErrorResponse{Err: err, Message: "given password is not correct"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неправильный пароль!"})
 
 		return
 	}
 
-	log.Println("taken user:", user)
+	log.Println("найдено совпадение по пользователю:", user)
 
 	payload := jwt.MapClaims{
 		"username": user.Username,
@@ -66,14 +70,14 @@ func PostUserHandler(ctx *gin.Context) {
 	token, err := t.SignedString(environment.Env.JwtToken)
 
 	if err != nil {
-		log.Println("an error occured while signing token: ", err)
+		log.Println("ошибка во время подписи токена: ", err)
 
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "cannot sign token"})
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "ошибка на стороне сервера, попробуйте снова позже"})
 
 		return
 	}
 
-	log.Println("jwt token:", token)
+	log.Println("jwt токен:", token)
 
 	type responseToken struct {
 		Token string
