@@ -77,6 +77,10 @@ func PostUserHandler(ctx *gin.Context) {
 
 	err = logging.WriteLog("taken user:", user)
 
+	if err != nil {
+		log.Println("an error occured while opening .log file")
+	}
+
 	payload := jwt.MapClaims{
 		"username": user.Username,
 		"password": user.Password,
@@ -87,6 +91,7 @@ func PostUserHandler(ctx *gin.Context) {
 	token, err := t.SignedString(environment.Env.JwtToken)
 
 	if err != nil {
+
 		err := logging.WriteLog("an error occured while signing token: ", err)
 
 		if err != nil {
