@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"main/database"
 	"main/environment"
 	"main/logging"
@@ -11,7 +12,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"gorm.io/gorm"
 )
+
+//TODO сделать вывод ошибок на фронт
 
 func PostUserHandler(ctx *gin.Context) {
 
@@ -20,45 +24,58 @@ func PostUserHandler(ctx *gin.Context) {
 		Password string
 	}
 
-	logging.WriteLog("получен запрос")
+	err := logging.WriteLog("took POST req")
+
+	if err != nil {
+		log.Println("an error occured while opening .log file")
+	}
 
 	var _loggedUser loggedUser
 
 	ctx.BindJSON(&_loggedUser)
 
-	logging.WriteLog("логин: ", _loggedUser)
+	err = logging.WriteLog("logged user: ", _loggedUser)
+
+	if err != nil {
+		log.Println("an error occured while opening .log file")
+	}
 
 	var user models.User
 
-	tx := database.DB.Begin()
+	database.DB.Transaction(func(tx *gorm.DB) error {
 
-	err := tx.First(&user, "username = ?", _loggedUser.Username).Error
+		if err := tx.Find(&user, "username = ?", _loggedUser.Username).Error; err != nil {
 
-	if err != nil {
+			err := logging.WriteLog("an error occured while finding user: ", err)
 
-		logging.WriteLog("пользователь не найден")
+			if err != nil {
+				log.Println("an error occured while opening .log file")
+			}
 
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неправильный логин!"})
+			ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "cannot find user by login"})
 
-		tx.Rollback()
+			return err
 
-		return
+		}
 
-	}
-
-	tx.Commit()
+		return nil
+	})
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password)) // линьганьгулигулигуливочалиньганьгулиньганьгу
 
 	if err != nil {
-		logging.WriteLog("пароль не совпадает с хешем")
+		err := logging.WriteLog("given password does not match hash")
 
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неправильный пароль!"})
+		if err != nil {
+			log.Println("an error occured while opening .log file")
+		}
+
+		ctx.JSON(http.StatusForbidden, models.ErrorResponse{Err: err, Message: "given password is not correct"})
 
 		return
 	}
 
-	logging.WriteLog("найдено совпадение по пользователю:", user)
+	err = logging.WriteLog("taken user:", user)
 
 	payload := jwt.MapClaims{
 		"username": user.Username,
@@ -70,14 +87,22 @@ func PostUserHandler(ctx *gin.Context) {
 	token, err := t.SignedString(environment.Env.JwtToken)
 
 	if err != nil {
-		logging.WriteLog("ошибка во время подписи токена: ", err)
+		err := logging.WriteLog("an error occured while signing token: ", err)
 
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "ошибка на стороне сервера, попробуйте снова позже"})
+		if err != nil {
+			log.Println("an error occured while opening .log file")
+		}
+
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "cannot sign token"})
 
 		return
 	}
 
-	logging.WriteLog("jwt токен:", token)
+	err = logging.WriteLog("jwt token:", token)
+
+	if err != nil {
+		log.Println("an error occured while opening .log file")
+	}
 
 	type responseToken struct {
 		Token string
