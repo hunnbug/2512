@@ -11,10 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 )
-
-//TODO сделать вывод ошибок на фронт
 
 func PostUserHandler(ctx *gin.Context) {
 
@@ -33,22 +30,21 @@ func PostUserHandler(ctx *gin.Context) {
 
 	var user models.User
 
-	database.DB.Transaction(func(tx *gorm.DB) error {
+	tx := database.DB.Begin()
 
-		if err := tx.Find(&user, "username = ?", _loggedUser.Username).Error; err != nil {
+	err := tx.First(&user, "username = ?", _loggedUser.Username).Error
 
-			log.Println("an error occured while finding user: ", err)
+	if err != nil {
 
-			ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "cannot find user by login"})
+		log.Println("user not found")
 
-			return err
+		ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "cannot find user by login"})
 
-		}
+		return
 
-		return nil
-	})
+	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password)) // линьганьгулигулигуливочалиньганьгулиньганьгу
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password)) // линьганьгулигулигуливочалиньганьгулиньганьгу
 
 	if err != nil {
 		log.Println("given password does not match hash")
