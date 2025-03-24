@@ -18,11 +18,11 @@ func WriteLog(v ...any) error {
 
 	log.SetOutput(file)
 
-	log.Println(v)
+	log.Println(v...)
 
 	log.SetOutput(io.Writer(os.Stdout))
 
-	log.Println(v)
+	log.Println(v...)
 
 	return nil
 
