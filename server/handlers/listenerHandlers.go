@@ -132,3 +132,37 @@ func CreateListener(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, nil)
 }
+
+func UpdateListener(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error:": err})
+		return
+	}
+
+	var request models.Listener
+	if err := database.DB.First(&request, "id_listener = ?", id).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error:": err})
+		return
+	}
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error:": err})
+		return
+	}
+
+	result := database.DB.Model(&models.Listener{}).Where("id_listener = ?", id).Updates(map[string]interface{}{
+		"firstname":    request.FirstName,
+		"secondname":   request.SecondName,
+		"middlename":   request.MiddleName,
+		"dateofbirth":  request.DateOfBirth,
+		"snils":        request.SNILS,
+		"contactphone": request.ContactPhone,
+		"email":        request.Email,
+	})
+	if result.Error != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error:": result.Error})
+		return
+	}
+}

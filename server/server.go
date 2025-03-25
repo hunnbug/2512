@@ -29,9 +29,10 @@ func Run() {
 
 	//listeners
 	r.POST("/listeners", handlers.CreateListener)
+	r.PUT("/listeners/:id", handlers.UpdateListener)
 
 	//LevelEducation
-	r.POST("/levelEducation", handlers.LevelEducationCreate)
+	r.PUT("/levelEducation/:id", handlers.LevelEducationUpdate)
 
 	r.Run("localhost:8080")
 

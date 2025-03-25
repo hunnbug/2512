@@ -39,19 +39,18 @@ func LevelEducationCreate(ctx *gin.Context) {
 
 func LevelEducationUpdate(ctx *gin.Context) {
 
-	// idParam := ctx.Param("id")
-	// id, err := uuid.Parse(idParam)
-	// if err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, gin.H{"error:": err})
-	// 	return
-	// }
+	idParam := ctx.Param("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error:": err})
+		return
+	}
 
 	var request models.LevelEducation
 
-	updates := make(map[string]interface{})
-
-	if request.Education != "" {
-		updates["education"] = request.Education
+	if err := database.DB.First(&request, "id_leveleducation = ?", id).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error:": "Запись не найдена"})
+		return
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -59,4 +58,22 @@ func LevelEducationUpdate(ctx *gin.Context) {
 		return
 	}
 
+	result := database.DB.Model(&models.LevelEducation{}).Where("id_leveleducation = ?", id).Update("education", request.Education)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error:": err})
+		return
+	}
+
 }
+
+// func LevelEducationDelete(ctx *gin.Context) {
+// 	idParam := ctx.Param("id")
+// 	id, err := uuid.Parse(idParam)
+// 	if err != nil {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{"error:": err})
+// 		return
+// 	}
+
+// 	if err != database.DB.Delete()
+
+// }
