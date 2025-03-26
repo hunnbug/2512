@@ -102,7 +102,7 @@ type Listener struct {
 	SNILS                string              `gorm:"column:snils;unique"`
 	ContactPhone         string              `gorm:"column:contactphone;unique"`
 	Email                string              `gorm:"column:email;unique"`
-	ID_passport          uuid.UUID           `gorm:"column:id_passport"`
+	ID_passport          uuid.UUID           `gorm:"column:id_passport;"`
 	Passport             Passport            `gorm:"foreignKey:ID_passport"`
 	ID_regAddress        uuid.UUID           `gorm:"column:id_regaddress"`
 	RegistrationAddress  RegistrationAddress `gorm:"foreignKey:ID_regAddress"`
