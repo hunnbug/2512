@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"main/database"
 	"main/environment"
 	"main/logging"
@@ -24,21 +23,17 @@ func PostUserHandler(ctx *gin.Context) {
 		Password string
 	}
 
-	err := logging.WriteLog("took POST req")
+	err := logging.WriteLog("получен запрос")
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
 	var _loggedUser loggedUser
 
 	ctx.BindJSON(&_loggedUser)
 
-	err = logging.WriteLog("logged user: ", _loggedUser)
+	err = logging.WriteLog("получен логин: ", _loggedUser)
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
 	var user models.User
 
@@ -46,13 +41,11 @@ func PostUserHandler(ctx *gin.Context) {
 
 		if err := tx.Find(&user, "username = ?", _loggedUser.Username).Error; err != nil {
 
-			err := logging.WriteLog("an error occured while finding user: ", err)
+			err := logging.WriteLog("неверный логин: ", err)
 
-			if err != nil {
-				log.Println("an error occured while opening .log file")
-			}
+			logging.CheckLogError(err)
 
-			ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "cannot find user by login"})
+			ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "неверный логин!"})
 
 			return err
 
@@ -64,22 +57,18 @@ func PostUserHandler(ctx *gin.Context) {
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password)) // линьганьгулигулигуливочалиньганьгулиньганьгу
 
 	if err != nil {
-		err := logging.WriteLog("given password does not match hash")
+		err := logging.WriteLog("пароль не совпадает с хешем")
 
-		if err != nil {
-			log.Println("an error occured while opening .log file")
-		}
+		logging.CheckLogError(err)
 
-		ctx.JSON(http.StatusForbidden, models.ErrorResponse{Err: err, Message: "given password is not correct"})
+		ctx.JSON(http.StatusForbidden, models.ErrorResponse{Err: err, Message: "неверный пароль!"})
 
 		return
 	}
 
 	err = logging.WriteLog("taken user:", user)
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
 	payload := jwt.MapClaims{
 		"username": user.Username,
@@ -92,22 +81,18 @@ func PostUserHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		err := logging.WriteLog("an error occured while signing token: ", err)
+		err := logging.WriteLog("ошибка во время создания токена: ", err)
 
-		if err != nil {
-			log.Println("an error occured while opening .log file")
-		}
+		logging.CheckLogError(err)
 
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "cannot sign token"})
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "невозможно создать токен"})
 
 		return
 	}
 
-	err = logging.WriteLog("jwt token:", token)
+	err = logging.WriteLog("jwt токен:", token)
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
 	type responseToken struct {
 		Token string

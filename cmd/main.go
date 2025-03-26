@@ -12,6 +12,6 @@ func main() {
 
 	database.Init()
 
-	server.Run()
+	server.Start()
 
 }

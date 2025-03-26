@@ -9,7 +9,7 @@ import (
 	"main/server/handlers"
 )
 
-func Run() {
+func Start() {
 
 	r := gin.Default()
 

@@ -30,6 +30,6 @@ func WriteLog(v ...any) error {
 
 func CheckLogError(err error) {
 	if err != nil {
-		log.Println("an error occured while opening .log file")
+		log.Println("ошибка во время открытия .log: ", err)
 	}
 }
