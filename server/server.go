@@ -25,7 +25,7 @@ func Start() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	r.POST("/login", handlers.PostUserHandler)
+	r.POST("/login", handlers.LoginHandler)
 
 	//listeners
 	r.POST("/listeners", handlers.CreateListener)

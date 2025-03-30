@@ -1,0 +1,7 @@
+2025/03/26 23:00:36 получен запрос
+2025/03/26 23:00:36 получен логин:  {1 2}
+2025/03/26 23:00:36 пароль не совпадает с хешем
+2025/03/26 23:00:38 получен запрос
+2025/03/26 23:00:38 получен логин:  {1 1}
+2025/03/26 23:00:38 taken user: {f48808f4-e901-415e-b312-44829e120915 1 $2a$08$OBL3YQvhRBmnxlbrpfgfZuHcrwV6qDrAFR1q6.ogTvM1bwrlIdRfm}
+2025/03/26 23:00:38 jwt токен: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQwOCRPQkwzWVF2aFJCbW54bGJycGZnZlp1SGNyd1Y2cURyQUZSMXE2Lm9nVHZNMWJ3cmxJZFJmbSIsInVzZXJuYW1lIjoiMSJ9.2jO9z7in0JS_eRtOQsCEvI1BQvrCggwqc64zVcIGk6s

@@ -252,3 +252,7 @@ func DeleteListener(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, nil)
 }
+
+func GetListeners(ctx *gin.Context) {
+
+}
