@@ -285,13 +285,9 @@ func DeleteListener(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
-<<<<<<< HEAD
-func GetListeners(ctx *gin.Context) {
-
-=======
 // примерная версия (значения пагинации брать с url)
 func ReadListener(ctx *gin.Context) {
-	var listener []models.Listener
+	var listeners []models.Listener
 
 	query := database.DB.
 		Preload("Passport").
@@ -299,18 +295,17 @@ func ReadListener(ctx *gin.Context) {
 		Preload("EducationListener").
 		Preload("PlaceWork").
 		Preload("ProgramEducation").
-		Limit(3).Offset(0).Find(&listener)
+		Limit(3).Offset(0).Find(&listeners)
 	if query.Error != nil {
 		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: query.Error, Message: "Слушатели не найдены"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, listener)
+	ctx.JSON(http.StatusOK, listeners)
 }
 
 func txDenied(ctx *gin.Context, v ...any) {
 	logging.WriteLog("Транзакция отменена", v)
 	logging.WriteLog("----------------------------------------------")
 	ctx.JSON(http.StatusBadRequest, nil)
->>>>>>> 5ab7eae089c7f1d4038b1bdc4f00b251a37b48bf
 }

@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 )
 
 func LoginHandler(ctx *gin.Context) {
@@ -60,28 +59,43 @@ func LoginHandler(ctx *gin.Context) {
 	//
 	var user models.User
 
-	database.DB.Transaction(func(tx *gorm.DB) error {
+	//
+	//начинаем транзакцию к БД
+	//
+	tx := database.DB.Begin()
+
+	//
+	//запрос поиска записи в БД по логину, парсится в user, возвращается ошибка и проверяется
+	//
+	err = tx.First(&user, "username = ?", _loggedUser.Username).Error
+
+	if err != nil {
 
 		//
-		//ищем пользователя по полученному с фронта юзернейму
+		//логгирование ошибки
 		//
-		if err := tx.Find(&user, "username = ?", _loggedUser.Username).Error; err != nil {
+		e := logging.WriteLog("неверный логин: ", err)
 
-			e := logging.WriteLog("неверный логин: ", err)
+		logging.CheckLogError(e)
 
-			logging.CheckLogError(e)
+		//
+		//отдаём на фронт код 400 и сообщение о неверном логине
+		//
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный логин!"})
 
-			//
-			//при ненаходе отдаем ошибку и 400 статус
-			//
-			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный логин!"})
+		//
+		//откат трпанзакции при ошибке
+		//
+		tx.Rollback()
 
-			return err
+		return
 
-		}
+	}
 
-		return nil
-	})
+	//
+	//коммит транзакции при отсутствии ошибок
+	//
+	tx.Commit()
 
 	//
 	//сравниваем хеш в БД с полученным паролем с фронта
