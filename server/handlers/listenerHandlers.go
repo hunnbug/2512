@@ -270,13 +270,6 @@ func DeleteListener(ctx *gin.Context) {
 		return
 	}
 
-	if err := tx.Where("id_programeducation = ?", listener.ID_ProgramEducation).Delete(&models.ProgramEducation{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Программа обучения не найдена"})
-		logging.WriteLog("Программа обучения не найдена")
-		return
-	}
-
 	if err := tx.Commit().Error; err != nil {
 		txDenied(ctx, "Удаление не произведено")
 		logging.CheckLogError(err)
