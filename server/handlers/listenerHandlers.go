@@ -15,6 +15,8 @@ func CreateListener(ctx *gin.Context) {
 
 	var request models.CreateListenerRequest
 
+	logging.WriteLog("запрос: ", request)
+
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка привязки данных к структуре"})
 		return
@@ -270,13 +272,6 @@ func DeleteListener(ctx *gin.Context) {
 		return
 	}
 
-	if err := tx.Where("id_programeducation = ?", listener.ID_ProgramEducation).Delete(&models.ProgramEducation{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Программа обучения не найдена"})
-		logging.WriteLog("Программа обучения не найдена")
-		return
-	}
-
 	if err := tx.Commit().Error; err != nil {
 		txDenied(ctx, "Удаление не произведено")
 		logging.CheckLogError(err)
@@ -330,13 +325,13 @@ func ReadListener(ctx *gin.Context) {
 	//
 	//запрос к БД с лимит и оффсет
 	//
-	query := database.DB.
-		Preload("Passport").
-		Preload("RegistrationAddress").
-		Preload("EducationListener").
-		Preload("PlaceWork").
-		Preload("ProgramEducation").
-		Limit(LIMIT_COUNT).Offset((_page.CurrentPage - 1) * LIMIT_COUNT).Find(&listeners)
+	query := database.DB.Limit(LIMIT_COUNT).Offset((_page.CurrentPage - 1) * LIMIT_COUNT).Find(&listeners)
+
+	// Preload("Passport").
+	// Preload("RegistrationAddress").
+	// Preload("EducationListener").
+	// Preload("PlaceWork").
+	// Preload("ProgramEducation").
 
 	//
 	//обработка ошибки запроса
