@@ -287,20 +287,65 @@ func DeleteListener(ctx *gin.Context) {
 
 // примерная версия (значения пагинации брать с url)
 func ReadListener(ctx *gin.Context) {
+
+	//
+	//количество пользователей на странице
+	//
+	const LIMIT_COUNT = 2
+
+	//
+	//структура ответа от фронта
+	//
+	type page struct {
+		CurrentPage int
+	}
+
+	//объект структуры
+	var _page page
+
+	//
+	//парсинг ответа в структуру
+	//
+	err := ctx.BindJSON(&_page)
+
+	logging.WriteLog("была получена страница: ", _page)
+
+	if err != nil {
+		logging.WriteLog("не удалось получить ответ от страницы: ", err)
+
+		logging.CheckLogError(err)
+	}
+
+	//
+	//инцииализация объекта лисенера
+	//
 	var listeners []models.Listener
 
+	//
+	//запрос к БД с лимит и оффсет
+	//
 	query := database.DB.
 		Preload("Passport").
 		Preload("RegistrationAddress").
 		Preload("EducationListener").
 		Preload("PlaceWork").
 		Preload("ProgramEducation").
-		Limit(3).Offset(0).Find(&listeners)
+		Limit(LIMIT_COUNT).Offset((_page.CurrentPage - 1) * LIMIT_COUNT).Find(&listeners)
+
+	//
+	//обработка ошибки запроса
+	//
 	if query.Error != nil {
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: query.Error, Message: "Слушатели не найдены"})
+
+		//возврат ошибки и 400
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Слушатели не найдены"})
+
 		return
 	}
 
+	//
+	//возврат слушателей
+	//
 	ctx.JSON(http.StatusOK, listeners)
 }
 

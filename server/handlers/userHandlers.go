@@ -47,9 +47,7 @@ func LoginHandler(ctx *gin.Context) {
 		logging.CheckLogError(e)
 	}
 
-	//
 	//пишем лог после парсинга логина и пароля в обхект структуры
-	//
 	err = logging.WriteLog("получен логин: ", _loggedUser)
 
 	logging.CheckLogError(err)
@@ -71,16 +69,12 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		//
 		//логгирование ошибки
-		//
 		e := logging.WriteLog("неверный логин: ", err)
 
 		logging.CheckLogError(e)
 
-		//
 		//отдаём на фронт код 400 и сообщение о неверном логине
-		//
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный логин!"})
 
 		//
@@ -108,17 +102,13 @@ func LoginHandler(ctx *gin.Context) {
 
 		logging.CheckLogError(e)
 
-		//
 		//при несовпадении пароля и хеша отдаем ошибку
-		//
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный пароль!"})
 
 		return
 	}
 
-	//
 	//пишем в лог данные пользователя при совпадении пароля и логина
-	//
 	err = logging.WriteLog("taken user:", user)
 
 	logging.CheckLogError(err)
@@ -147,17 +137,13 @@ func LoginHandler(ctx *gin.Context) {
 
 		logging.CheckLogError(e)
 
-		//
 		//при ошибке подписи токена возвращаем 400 и отдаем ошибку
-		//
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "невозможно создать токен"})
 
 		return
 	}
 
-	//
 	//логгируем жвт токен
-	//
 	err = logging.WriteLog("jwt токен:", token)
 
 	logging.CheckLogError(err)

@@ -28,10 +28,10 @@ func Start() {
 	r.POST("/login", handlers.LoginHandler)
 
 	//listeners
-	r.POST("/listeners", handlers.CreateListener)
+	r.POST("/listeners/create", handlers.CreateListener)
 	r.PUT("/listeners/:id", handlers.UpdateListener)
 	r.DELETE("/listeners/:id", handlers.DeleteListener)
-	r.GET("/listeners", handlers.ReadListener)
+	r.POST("/listeners/", handlers.ReadListener)
 
 	// //LevelEducation
 	// r.PUT("/levelEducation/:id", handlers.LevelEducationUpdate)
