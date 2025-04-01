@@ -274,6 +274,9 @@ func DeleteListener(ctx *gin.Context) {
 		txDenied(ctx, "Удаление не произведено")
 		logging.CheckLogError(err)
 	}
+	logging.WriteLog("-----------------")
+	logging.WriteLog("Удалён пользователь и все смежные данные", listener.ID_Listener)
+	logging.WriteLog("-----------------")
 
 	ctx.JSON(http.StatusOK, nil)
 }
