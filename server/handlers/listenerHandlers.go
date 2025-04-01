@@ -172,7 +172,7 @@ func UpdateListener(ctx *gin.Context) {
 
 	var request models.Listener
 	if err := database.DB.First(&request, "id_listener = ?", id).Error; err != nil {
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
 		logging.WriteLog("Пользователь не найден")
 		return
 	}
@@ -224,7 +224,7 @@ func DeleteListener(ctx *gin.Context) {
 
 	var listener models.Listener
 	if err := database.DB.First(&listener, "id_listener = ?", id).Error; err != nil {
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
 		logging.WriteLog("Пользователь не найден")
 		return
 	}
@@ -237,42 +237,42 @@ func DeleteListener(ctx *gin.Context) {
 
 	if err := tx.Delete(&models.Listener{}, id).Error; err != nil {
 		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Пользователь не удалён"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не удалён"})
 		logging.WriteLog("Пользователь не удалён")
 		return
 	}
 
 	if err := tx.Where("id_passport = ?", listener.ID_passport).Delete(&models.Passport{}).Error; err != nil {
 		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})
 		logging.WriteLog("Паспорт не найден")
 		return
 	}
 
 	if err := tx.Where("id_regaddress = ?", listener.ID_regAddress).Delete(&models.RegistrationAddress{}).Error; err != nil {
 		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Адрес не найден"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Адрес не найден"})
 		logging.WriteLog("Адрес не найден")
 		return
 	}
 
 	if err := tx.Where("id_educationlistener = ?", listener.ID_EducationListener).Delete(&models.EducationListener{}).Error; err != nil {
 		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Образование не найдено"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Образование не найдено"})
 		logging.WriteLog("Образование не найдено")
 		return
 	}
 
 	if err := tx.Where("id_placework = ?", listener.ID_PlaceWork).Delete(&models.PlaceWork{}).Error; err != nil {
 		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
 		logging.WriteLog("Место работы не найдено")
 		return
 	}
 
 	if err := tx.Where("id_programeducation = ?", listener.ID_ProgramEducation).Delete(&models.ProgramEducation{}).Error; err != nil {
 		tx.Rollback()
-		ctx.JSON(http.StatusNotFound, models.ErrorResponse{Err: err, Message: "Программа обучения не найдена"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Программа обучения не найдена"})
 		logging.WriteLog("Программа обучения не найдена")
 		return
 	}
@@ -293,6 +293,8 @@ func ReadListener(ctx *gin.Context) {
 	//
 	const LIMIT_COUNT = 2
 
+	logging.WriteLog("получен запрос на получение слушателей")
+
 	//
 	//структура ответа от фронта
 	//
@@ -308,13 +310,14 @@ func ReadListener(ctx *gin.Context) {
 	//
 	err := ctx.BindJSON(&_page)
 
-	logging.WriteLog("была получена страница: ", _page)
-
 	if err != nil {
 		logging.WriteLog("не удалось получить ответ от страницы: ", err)
 
 		logging.CheckLogError(err)
 	}
+
+	//логгирование страницы
+	logging.WriteLog("была получена страница: ", _page)
 
 	//
 	//инцииализация объекта лисенера
