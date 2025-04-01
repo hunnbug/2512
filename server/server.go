@@ -32,6 +32,7 @@ func Start() {
 	r.PUT("/listeners/:id", handlers.UpdateListener)
 	r.DELETE("/listeners/:id", handlers.DeleteListener)
 	r.POST("/listeners/", handlers.ReadListener)
+	r.GET("/listeners/:id", handlers.GetListenerByID)
 
 	// //LevelEducation
 	// r.PUT("/levelEducation/:id", handlers.LevelEducationUpdate)

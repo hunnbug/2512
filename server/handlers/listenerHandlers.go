@@ -173,6 +173,7 @@ func UpdateListener(ctx *gin.Context) {
 	}
 
 	var request models.Listener
+
 	if err := database.DB.First(&request, "id_listener = ?", id).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
 		logging.WriteLog("Пользователь не найден")
@@ -350,8 +351,42 @@ func ReadListener(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, listeners)
 }
 
+func GetListenerByID(ctx *gin.Context) {
+
+	logging.WriteLog("получен запрос на получение слушателя по id")
+
+	var listener models.Listener
+
+	tx := database.DB.Begin()
+
+	err := database.DB.First(&listener, "id_listener = ?", ctx.Param("id")).Error
+
+	if err != nil {
+
+		txDenied(ctx, models.ErrorResponse{Err: err, Message: "Слушатель не найден"})
+
+		e := logging.WriteLog("Слушатель не найден:", err)
+
+		if e != nil {
+
+			logging.CheckLogError(e)
+
+		}
+
+		tx.Rollback()
+
+		return
+
+	}
+
+	tx.Commit()
+
+	ctx.JSON(http.StatusOK, listener)
+
+}
+
 func txDenied(ctx *gin.Context, v ...any) {
 	logging.WriteLog("Транзакция отменена", v)
 	logging.WriteLog("----------------------------------------------")
-	ctx.JSON(http.StatusBadRequest, nil)
+	ctx.JSON(http.StatusBadRequest, v)
 }
