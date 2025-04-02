@@ -181,7 +181,7 @@ func UpdateListener(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка привязки данных к структуре"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка обработки запроса!"})
 		logging.WriteLog("Ошибка привязки данных к структуре")
 		return
 	}
@@ -353,18 +353,32 @@ func ReadListener(ctx *gin.Context) {
 
 func GetListenerByID(ctx *gin.Context) {
 
+	//логгирование получения запроса
 	logging.WriteLog("получен запрос на получение слушателя по id")
 
+	//
+	//объект слушателя, в который мы будем парсить ответ, и который мы будем возвращать
+	//
 	var listener models.Listener
 
+	//
+	//начало транзакции
+	//
 	tx := database.DB.Begin()
 
+	//
+	//запрос к БД по поиску пользователя по параметру из запроса
+	//
 	err := database.DB.First(&listener, "id_listener = ?", ctx.Param("id")).Error
 
 	if err != nil {
 
+		//
+		//обработка ошибки, возврат на фронт ошикбки
+		//
 		txDenied(ctx, models.ErrorResponse{Err: err, Message: "Слушатель не найден"})
 
+		//логгирование ошибки
 		e := logging.WriteLog("Слушатель не найден:", err)
 
 		if e != nil {
@@ -373,14 +387,23 @@ func GetListenerByID(ctx *gin.Context) {
 
 		}
 
+		//
+		//отмена транзакции
+		//
 		tx.Rollback()
 
 		return
 
 	}
 
+	//
+	//коммит порно транзакции при успешном выполнении запроса
+	//
 	tx.Commit()
 
+	//
+	//порно
+	//
 	ctx.JSON(http.StatusOK, listener)
 
 }
