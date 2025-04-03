@@ -67,7 +67,7 @@ type CreateListenerRequest struct {
 }
 
 //
-//DTO
+//DTO (которое можно перенести в отдельный файл)
 //
 
 type ListenerIDDTO struct {

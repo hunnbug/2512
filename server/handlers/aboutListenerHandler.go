@@ -20,6 +20,9 @@ func AboutListener(ctx *gin.Context) {
 		return
 	}
 
+	// поиск слушателя чтобы вытащить id через структуру DTO
+
+	//транзакции на get делать не стоит всё равно выход из метода при ненаходе одного из
 	var listener models.Listener
 
 	querry := database.DB.First(&listener, "id_listener = ?", id)
@@ -37,6 +40,7 @@ func AboutListener(ctx *gin.Context) {
 		ID_ProgramEducation:  listener.ID_ProgramEducation,
 	}
 
+	// Все другие таблицы в которых поиск идёт по id из предыдущей структуры
 	var passport models.Passport
 	var regAddress models.RegistrationAddress
 	var educationListener models.EducationListener
@@ -103,6 +107,7 @@ func AboutListener(ctx *gin.Context) {
 		Apartment: regAddress.Apartment,
 	}
 
+	// вложеная связь
 	var leveleducation models.LevelEducation
 	if err := database.DB.Find(&leveleducation, "id_leveleducation", educationListener.ID_LevelEducation).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Уровень образования не найден"})
