@@ -396,14 +396,8 @@ func GetListenerByID(ctx *gin.Context) {
 
 	}
 
-	//
-	//коммит порно транзакции при успешном выполнении запроса
-	//
 	tx.Commit()
 
-	//
-	//порно
-	//
 	ctx.JSON(http.StatusOK, listener)
 
 }
