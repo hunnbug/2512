@@ -287,26 +287,16 @@ func DeleteListener(ctx *gin.Context) {
 // примерная версия (значения пагинации брать с url)
 func ReadListener(ctx *gin.Context) {
 
-	//
-	//количество пользователей на странице
-	//
 	const LIMIT_COUNT = 2
 
 	logging.WriteLog("получен запрос на получение слушателей")
 
-	//
-	//структура ответа от фронта
-	//
 	type page struct {
 		CurrentPage int
 	}
 
-	//объект структуры
 	var _page page
 
-	//
-	//парсинг ответа в структуру
-	//
 	err := ctx.BindJSON(&_page)
 
 	if err != nil {
@@ -315,97 +305,20 @@ func ReadListener(ctx *gin.Context) {
 		logging.CheckLogError(err)
 	}
 
-	//логгирование страницы
 	logging.WriteLog("была получена страница: ", _page)
 
-	//
-	//инцииализация объекта лисенера
-	//
 	var listeners []models.Listener
 
-	//
-	//запрос к БД с лимит и оффсет
-	//
 	query := database.DB.Limit(LIMIT_COUNT).Offset((_page.CurrentPage - 1) * LIMIT_COUNT).Find(&listeners)
 
-	// Preload("Passport").
-	// Preload("RegistrationAddress").
-	// Preload("EducationListener").
-	// Preload("PlaceWork").
-	// Preload("ProgramEducation").
-
-	//
-	//обработка ошибки запроса
-	//
 	if query.Error != nil {
 
-		//возврат ошибки и 400
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Слушатели не найдены"})
 
 		return
 	}
 
-	//
-	//возврат слушателей
-	//
 	ctx.JSON(http.StatusOK, listeners)
-}
-
-func GetListenerByID(ctx *gin.Context) {
-
-	//логгирование получения запроса
-	logging.WriteLog("получен запрос на получение слушателя по id")
-
-	//
-	//объект слушателя, в который мы будем парсить ответ, и который мы будем возвращать
-	//
-	var listener models.Listener
-
-	//
-	//начало транзакции
-	//
-	tx := database.DB.Begin()
-
-	//
-	//запрос к БД по поиску пользователя по параметру из запроса
-	//
-	err := database.DB.First(&listener, "id_listener = ?", ctx.Param("id")).Error
-
-	if err != nil {
-
-		//
-		//обработка ошибки, возврат на фронт ошикбки
-		//
-		txDenied(ctx, models.ErrorResponse{Err: err, Message: "Слушатель не найден"})
-
-		//логгирование ошибки
-		e := logging.WriteLog("Слушатель не найден:", err)
-
-		if e != nil {
-
-			logging.CheckLogError(e)
-
-		}
-
-		//
-		//отмена транзакции
-		//
-		tx.Rollback()
-
-		return
-
-	}
-
-	//
-	//коммит порно транзакции при успешном выполнении запроса
-	//
-	tx.Commit()
-
-	//
-	//порно
-	//
-	ctx.JSON(http.StatusOK, listener)
-
 }
 
 func txDenied(ctx *gin.Context, v ...any) {

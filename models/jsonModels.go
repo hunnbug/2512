@@ -1,5 +1,7 @@
 package models
 
+import "github.com/google/uuid"
+
 type PassportRequest struct {
 	PlaceBirth    string `json:"placeBirth"`
 	Citizenship   string `json:"citizenship"`
@@ -62,4 +64,77 @@ type CreateListenerRequest struct {
 	EducationListener   EducationListenerRequest `json:"education"`
 	PlaceWork           PlaceWorkRequest         `json:"placeWork"`
 	ProgramEducation    ProgramRequest           `json:"programEducation"`
+}
+
+//
+//DTO
+//
+
+type ListenerIDDTO struct {
+	ID_Listener uuid.UUID
+
+	ID_Passport          uuid.UUID
+	ID_RegAddress        uuid.UUID
+	ID_EducationListener uuid.UUID
+	ID_PlaceWork         uuid.UUID
+	ID_ProgramEducation  uuid.UUID
+}
+
+type ListenerDTO struct {
+	FirstName    string
+	SecondName   string
+	MiddleName   string
+	DateOfBirth  string
+	SNILS        string
+	ContactPhone string
+	Email        string
+}
+
+type PassportDTO struct {
+	PlaceBirth    string
+	Citizenship   string
+	Gender        string
+	Seria         int
+	Number        int
+	PassportGiven string
+	DateGiven     string
+	Code          string
+}
+
+type RegistrationAddressDTO struct {
+	MailIndex int
+	Region    string
+	City      string
+	Street    string
+	House     string
+	Building  string
+	Apartment string
+}
+
+type LevelEducationDTO struct {
+	Education string
+}
+
+type EducationListenerDTO struct {
+	DiplomSeria            int
+	DiplomNumber           int
+	DateGiven              string
+	City                   string
+	Region                 string
+	EducationalInstitution string
+	Speciality             string
+	LevelEducation         string
+}
+
+type PlaceWorkDTO struct {
+	NameCompany        string
+	JobTitle           string
+	AllExperience      int
+	JobTitleExpirience int
+}
+
+type ProgramEducationDTO struct {
+	NameProfEducation string
+	TypeOfEducation   string
+	TimeEducation     int
 }
