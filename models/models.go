@@ -110,10 +110,19 @@ type Listener struct {
 	EducationListener    EducationListener   `gorm:"foreignKey:ID_EducationListener"`
 	ID_PlaceWork         uuid.UUID           `gorm:"column:id_placework"`
 	PlaceWork            PlaceWork           `gorm:"foreignKey:ID_PlaceWork"`
-	ID_ProgramEducation  uuid.UUID           `gorm:"column:id_programeducation"`
-	ProgramEducation     ProgramEducation    `gorm:"foreignKey:ID_ProgramEducation"`
 }
 
 func (Listener) TableName() string {
 	return "listener"
+}
+
+type ListenerProgramEducation struct {
+	ID_Listener         uuid.UUID        `gorm:"primaryKey;column:id_listener"`
+	ID_ProgramEducation uuid.UUID        `gorm:"primaryKey;column:id_programeducation"`
+	Listener            Listener         `gorm:"foreignKey:ID_Listener"`
+	ProgramEducation    ProgramEducation `gorm:"foreignKey:ID_ProgramEducation"`
+}
+
+func (ListenerProgramEducation) TableName() string {
+	return "listenerprogrameducation"
 }
