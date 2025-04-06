@@ -138,7 +138,6 @@ func CreateListener(ctx *gin.Context) {
 		ID_regAddress:        registrationAddress.ID_regAddress,
 		ID_EducationListener: educationListener.ID_EducationListener,
 		ID_PlaceWork:         placeWork.ID_PlaceWork,
-		ID_ProgramEducation:  programEducation.ID_ProgramEducation,
 	}
 
 	if err := tx.Create(&listener).Error; err != nil {
@@ -173,8 +172,9 @@ func UpdateListener(ctx *gin.Context) {
 	}
 
 	var request models.Listener
+	var existsListener models.Listener
 
-	if err := database.DB.First(&request, "id_listener = ?", id).Error; err != nil {
+	if err := database.DB.First(&existsListener, "id_listener = ?", id).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
 		logging.WriteLog("Пользователь не найден")
 		return
@@ -202,7 +202,7 @@ func UpdateListener(ctx *gin.Context) {
 		"email":        request.Email,
 	})
 	if query.Error != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка обновления записи"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
 		txDenied(ctx, "Ошибка обновления записи")
 		return
 	}
@@ -284,7 +284,7 @@ func DeleteListener(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
-// примерная версия (значения пагинации брать с url)
+// примерная версия (значения пагинации брать с url) желательно переделать под DTO
 func ReadListener(ctx *gin.Context) {
 
 	const LIMIT_COUNT = 2

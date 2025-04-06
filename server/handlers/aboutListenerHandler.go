@@ -37,7 +37,6 @@ func AboutListener(ctx *gin.Context) {
 		ID_RegAddress:        listener.ID_regAddress,
 		ID_EducationListener: listener.ID_EducationListener,
 		ID_PlaceWork:         listener.ID_PlaceWork,
-		ID_ProgramEducation:  listener.ID_ProgramEducation,
 	}
 
 	// Все другие таблицы в которых поиск идёт по id из предыдущей структуры
@@ -45,7 +44,6 @@ func AboutListener(ctx *gin.Context) {
 	var regAddress models.RegistrationAddress
 	var educationListener models.EducationListener
 	var placework models.PlaceWork
-	var programEducation models.ProgramEducation
 
 	if err := database.DB.First(&passport, "id_passport = ?", responseUUID.ID_Passport).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})
@@ -68,12 +66,6 @@ func AboutListener(ctx *gin.Context) {
 	if err := database.DB.First(&placework, "id_placework = ?", responseUUID.ID_PlaceWork).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
 		logging.WriteLog("Место работы не найдено")
-		return
-	}
-
-	if err := database.DB.First(&programEducation, "id_programeducation = ?", responseUUID.ID_ProgramEducation).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Программы обучения не найдены"})
-		logging.WriteLog("Программы обучения не найдены")
 		return
 	}
 
@@ -132,19 +124,24 @@ func AboutListener(ctx *gin.Context) {
 		JobTitleExpirience: placework.JobTitleExpirience,
 	}
 
-	responseProgramEducation := models.ProgramEducationDTO{
-		NameProfEducation: programEducation.NameProfEducation,
-		TypeOfEducation:   programEducation.TypeOfEducation,
-		TimeEducation:     programEducation.TimeEducation,
+	var fullLevelEducation []models.LevelEducation
+	querryLevelEducation := database.DB.Find(&fullLevelEducation)
+
+	if querryLevelEducation.Error != nil {
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryLevelEducation.Error, Message: "Слушатели не найдены"})
+
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+		"leveleducation":    fullLevelEducation,
 		"listener":          responseListener,
 		"passport":          responsePassport,
 		"regAddress":        responseRegAddress,
 		"educationListener": responseEducationListener,
 		"placeWork":         responsePlacework,
-		"programEducation":  responseProgramEducation,
+		"responseuuid":      responseUUID,
 	})
 
 }
