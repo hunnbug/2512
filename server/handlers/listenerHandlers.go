@@ -117,14 +117,6 @@ func CreateListener(ctx *gin.Context) {
 	}
 	logging.WriteLog("Создано место работы слушателя", placeWork.ID_PlaceWork)
 
-	var programEducation models.ProgramEducation
-	if err := database.DB.First(&programEducation, "nameprofeducation = ?", request.ProgramEducation.NameProfEducation).Error; err != nil {
-		err = logging.WriteLog("Уровень образования не найден", request.ProgramEducation.NameProfEducation)
-		logging.CheckLogError(err)
-		txDenied(ctx)
-		return
-	}
-
 	listener := models.Listener{
 		ID_Listener:          uuid.New(),
 		FirstName:            request.FirstName,
