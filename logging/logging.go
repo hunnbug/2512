@@ -27,3 +27,9 @@ func WriteLog(v ...any) error {
 	return nil
 
 }
+
+func CheckLogError(err error) {
+	if err != nil {
+		log.Println("ошибка во время открытия .log: ", err)
+	}
+}

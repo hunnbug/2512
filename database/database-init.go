@@ -18,4 +18,5 @@ func Init() {
 	if err != nil {
 		panic("falied to connect db. \n\nError: " + err.Error() + "\n")
 	}
+
 }

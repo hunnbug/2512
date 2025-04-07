@@ -9,7 +9,7 @@ import (
 	"main/server/handlers"
 )
 
-func Run() {
+func Start() {
 
 	r := gin.Default()
 
@@ -25,13 +25,25 @@ func Run() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	r.POST("/login", handlers.PostUserHandler)
+	r.POST("/login", handlers.LoginHandler)
 
 	//listeners
-	r.POST("/listeners", handlers.CreateListener)
+	r.POST("/listeners/create", handlers.CreateListener)
+	r.PUT("/listeners/:id", handlers.UpdateListener)
+	r.DELETE("/listeners/:id", handlers.DeleteListener)
+	r.POST("/listeners/", handlers.ReadListener)
 
-	//LevelEducation
-	r.POST("/levelEducation", handlers.LevelEducationCreate)
+	// //LevelEducation
+	// r.PUT("/levelEducation/:id", handlers.LevelEducationUpdate)
+	// r.POST("/levelEducation", handlers.LevelEducationCreate)
+
+	//AboutListener
+	r.GET("/listeners/:id/about", handlers.AboutListener)
+	r.PUT("/listeners/:id/about/update/passport", handlers.UpdateListenersPassport)
+	r.PUT("/listeners/:id/about/update/education", handlers.UpdateListenersEducation)
+	r.PUT("/listeners/:id/about/update/placework", handlers.UpdateListenersPlaceWork)
+	r.PUT("/listeners/:id/about/update/programeducation", handlers.UpdateListenersPassport)
+	r.PUT("/listeners/:id/about/update/regaddress", handlers.UpdateListenersRegAddress)
 
 	r.Run("localhost:8080")
 

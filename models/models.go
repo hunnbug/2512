@@ -54,16 +54,15 @@ func (LevelEducation) TableName() string {
 }
 
 type EducationListener struct {
-	ID_EducationListener   uuid.UUID      `gorm:"column:id_educationlistener;primaryKey"`
-	DiplomSeria            int            `gorm:"column:diplomseria;unique"`
-	DiplomNumber           int            `gorm:"column:diplomnumber;unique"`
-	DateGiven              string         `gorm:"column:dategiven;type:date"`
-	City                   string         `gorm:"column:city"`
-	Region                 string         `gorm:"column:region"`
-	EducationalInstitution string         `gorm:"column:educationalinstitution"`
-	Speciality             string         `gorm:"column:speciality"`
-	ID_LevelEducation      uuid.UUID      `gorm:"column:id_leveleducation"`
-	LevelEducation         LevelEducation `gorm:"foreignKey:ID_LevelEducation"`
+	ID_EducationListener   uuid.UUID `gorm:"column:id_educationlistener;primaryKey"`
+	DiplomSeria            int       `gorm:"column:diplomseria;unique"`
+	DiplomNumber           int       `gorm:"column:diplomnumber;unique"`
+	DateGiven              string    `gorm:"column:dategiven;type:date"`
+	City                   string    `gorm:"column:city"`
+	Region                 string    `gorm:"column:region"`
+	EducationalInstitution string    `gorm:"column:educationalinstitution"`
+	Speciality             string    `gorm:"column:speciality"`
+	ID_LevelEducation      uuid.UUID `gorm:"column:id_leveleducation"`
 }
 
 func (EducationListener) TableName() string {
@@ -82,11 +81,22 @@ func (PlaceWork) TableName() string {
 	return "placework"
 }
 
+type DivisionsEducation struct {
+	ID_DivisionsEducation uuid.UUID `gorm:"column:id_divisionseducation;primaryKey"`
+	Divisions             string    `gorm:"column:divisions;unique"`
+}
+
+func (DivisionsEducation) TableName() string {
+	return "divisionseducation"
+}
+
 type ProgramEducation struct {
-	ID_ProgramEducation uuid.UUID `gorm:"column:id_programeducation;primaryKey"`
-	NameProfEducation   string    `gorm:"column:nameprofeducation"`
-	TypeOfEducation     string    `gorm:"column:typeofeducation"`
-	TimeEducation       int       `gorm:"column:timeeducation"`
+	ID_ProgramEducation   uuid.UUID          `gorm:"column:id_programeducation;primaryKey"`
+	NameProfEducation     string             `gorm:"column:nameprofeducation"`
+	TypeOfEducation       string             `gorm:"column:typeofeducation"`
+	TimeEducation         int                `gorm:"column:timeeducation"`
+	ID_DivisionsEducation uuid.UUID          `gorm:"column:id_divisionseducation"`
+	Division              DivisionsEducation `gorm:"foreignKey:ID_DivisionsEducation"`
 }
 
 func (ProgramEducation) TableName() string {
@@ -102,7 +112,7 @@ type Listener struct {
 	SNILS                string              `gorm:"column:snils;unique"`
 	ContactPhone         string              `gorm:"column:contactphone;unique"`
 	Email                string              `gorm:"column:email;unique"`
-	ID_passport          uuid.UUID           `gorm:"column:id_passport"`
+	ID_passport          uuid.UUID           `gorm:"column:id_passport;"`
 	Passport             Passport            `gorm:"foreignKey:ID_passport"`
 	ID_regAddress        uuid.UUID           `gorm:"column:id_regaddress"`
 	RegistrationAddress  RegistrationAddress `gorm:"foreignKey:ID_regAddress"`
@@ -110,10 +120,19 @@ type Listener struct {
 	EducationListener    EducationListener   `gorm:"foreignKey:ID_EducationListener"`
 	ID_PlaceWork         uuid.UUID           `gorm:"column:id_placework"`
 	PlaceWork            PlaceWork           `gorm:"foreignKey:ID_PlaceWork"`
-	ID_ProgramEducation  uuid.UUID           `gorm:"column:id_programeducation"`
-	ProgramEducation     ProgramEducation    `gorm:"foreignKey:ID_ProgramEducation"`
 }
 
 func (Listener) TableName() string {
 	return "listener"
+}
+
+type ListenerProgramEducation struct {
+	ID_Listener         uuid.UUID        `gorm:"primaryKey;column:id_listener"`
+	ID_ProgramEducation uuid.UUID        `gorm:"primaryKey;column:id_programeducation"`
+	Listener            Listener         `gorm:"foreignKey:ID_Listener"`
+	ProgramEducation    ProgramEducation `gorm:"foreignKey:ID_ProgramEducation"`
+}
+
+func (ListenerProgramEducation) TableName() string {
+	return "listenerprogrameducation"
 }

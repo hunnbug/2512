@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"main/database"
 	"main/environment"
 	"main/logging"
@@ -12,106 +11,152 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 )
 
-//TODO сделать вывод ошибок на фронт
+func LoginHandler(ctx *gin.Context) {
 
-func PostUserHandler(ctx *gin.Context) {
-
+	//
+	//объявляем структуру, в объект которой будут парситься данные о логине и пароле с фронта
+	//
 	type loggedUser struct {
 		Username string
 		Password string
 	}
 
-	err := logging.WriteLog("took POST req")
+	//
+	//пишем лог при старте работы хендлера
+	//
+	err := logging.WriteLog("получен запрос")
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
+	//
+	//объявляем объект структуры для дальнейшего парсинга логина и пароля
+	//
 	var _loggedUser loggedUser
 
-	ctx.BindJSON(&_loggedUser)
-
-	err = logging.WriteLog("logged user: ", _loggedUser)
+	//
+	// получаем логин и пароль и парсим в loggedUser
+	//
+	err = ctx.BindJSON(&_loggedUser)
 
 	if err != nil {
-		log.Println("an error occured while opening .log file")
+
+		e := logging.WriteLog("произошла ошибка при парсинге логина и пароля: ", err)
+
+		logging.CheckLogError(e)
 	}
 
+	//пишем лог после парсинга логина и пароля в обхект структуры
+	err = logging.WriteLog("получен логин: ", _loggedUser)
+
+	logging.CheckLogError(err)
+
+	//
+	//объект, в который будет пароситься найденный пользователь из БД
+	//
 	var user models.User
 
-	database.DB.Transaction(func(tx *gorm.DB) error {
+	//
+	//начинаем транзакцию к БД
+	//
+	tx := database.DB.Begin()
 
-		if err := tx.Find(&user, "username = ?", _loggedUser.Username).Error; err != nil {
-
-			err := logging.WriteLog("an error occured while finding user: ", err)
-
-			if err != nil {
-				log.Println("an error occured while opening .log file")
-			}
-
-			ctx.JSON(http.StatusNotAcceptable, models.ErrorResponse{Err: err, Message: "cannot find user by login"})
-
-			return err
-
-		}
-
-		return nil
-	})
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password)) // линьганьгулигулигуливочалиньганьгулиньганьгу
+	//
+	//запрос поиска записи в БД по логину, парсится в user, возвращается ошибка и проверяется
+	//
+	err = tx.First(&user, "username = ?", _loggedUser.Username).Error
 
 	if err != nil {
-		err := logging.WriteLog("given password does not match hash")
 
-		if err != nil {
-			log.Println("an error occured while opening .log file")
-		}
+		//логгирование ошибки
+		e := logging.WriteLog("неверный логин: ", err)
 
-		ctx.JSON(http.StatusForbidden, models.ErrorResponse{Err: err, Message: "given password is not correct"})
+		logging.CheckLogError(e)
+
+		//отдаём на фронт код 400 и сообщение о неверном логине
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный логин!"})
+
+		//
+		//откат трпанзакции при ошибке
+		//
+		tx.Rollback()
+
+		return
+
+	}
+
+	//
+	//коммит транзакции при отсутствии ошибок
+	//
+	tx.Commit()
+
+	//
+	//сравниваем хеш в БД с полученным паролем с фронта
+	//
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(_loggedUser.Password))
+
+	if err != nil {
+
+		e := logging.WriteLog("пароль не совпадает с хешем")
+
+		logging.CheckLogError(e)
+
+		//при несовпадении пароля и хеша отдаем ошибку
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный пароль!"})
 
 		return
 	}
 
+	//пишем в лог данные пользователя при совпадении пароля и логина
 	err = logging.WriteLog("taken user:", user)
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
+	//
+	//создаем пейлод для жвт токена
+	//
 	payload := jwt.MapClaims{
 		"username": user.Username,
 		"password": user.Password,
 	}
 
+	//
+	//создаем токен
+	//
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 
+	//
+	//подписываем токен
+	//
 	token, err := t.SignedString(environment.Env.JwtToken)
 
 	if err != nil {
 
-		err := logging.WriteLog("an error occured while signing token: ", err)
+		e := logging.WriteLog("ошибка во время создания токена: ", err)
 
-		if err != nil {
-			log.Println("an error occured while opening .log file")
-		}
+		logging.CheckLogError(e)
 
-		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "cannot sign token"})
+		//при ошибке подписи токена возвращаем 400 и отдаем ошибку
+		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "невозможно создать токен"})
 
 		return
 	}
 
-	err = logging.WriteLog("jwt token:", token)
+	//логгируем жвт токен
+	err = logging.WriteLog("jwt токен:", token)
 
-	if err != nil {
-		log.Println("an error occured while opening .log file")
-	}
+	logging.CheckLogError(err)
 
+	//
+	//объявляем структуру для того, чтоб отдавать токен на фронт
+	//
 	type responseToken struct {
 		Token string
 	}
 
+	//
+	//отдаем токен на фронт с кодом 200
+	//
 	ctx.JSON(200, responseToken{Token: token})
 }
