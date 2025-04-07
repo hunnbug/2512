@@ -71,13 +71,10 @@ type CreateListenerRequest struct {
 //
 
 type ListenerIDDTO struct {
-	ID_Listener uuid.UUID
-
 	ID_Passport          uuid.UUID
 	ID_RegAddress        uuid.UUID
 	ID_EducationListener uuid.UUID
 	ID_PlaceWork         uuid.UUID
-	ID_ProgramEducation  uuid.UUID
 }
 
 type ListenerDTO struct {
@@ -116,6 +113,7 @@ type LevelEducationDTO struct {
 }
 
 type EducationListenerDTO struct {
+	ID_EducationListener   string
 	DiplomSeria            int
 	DiplomNumber           int
 	DateGiven              string

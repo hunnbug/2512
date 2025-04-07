@@ -156,9 +156,9 @@ func UpdateListenersRegAddress(ctx *gin.Context) {
 }
 
 // Обновление образования слушателя
-func UpdateListenersEducationListener(ctx *gin.Context) {
+func UpdateListenersEducation(ctx *gin.Context) {
 
-	var request models.EducationListener
+	var request models.EducationListenerDTO
 	var existsEducationListener models.EducationListener
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -168,8 +168,8 @@ func UpdateListenersEducationListener(ctx *gin.Context) {
 	}
 
 	if err := database.DB.First(&existsEducationListener, "id_educationlistener = ?", request.ID_EducationListener).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
-		logging.WriteLog("Место работы не найдено")
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Образование не найдено"})
+		logging.WriteLog("Образование работы не найдено")
 		return
 	}
 
@@ -177,6 +177,15 @@ func UpdateListenersEducationListener(ctx *gin.Context) {
 	if tx.Error != nil {
 		err := logging.WriteLog("Транзакция не создана")
 		logging.CheckLogError(err)
+	}
+
+	var levelEducation models.LevelEducation
+
+	if err := database.DB.First(&levelEducation, "education = ?", request.LevelEducation).Error; err != nil {
+		err = logging.WriteLog("Уровень образования не найден", request.LevelEducation)
+		logging.CheckLogError(err)
+		txDenied(ctx)
+		return
 	}
 
 	query := tx.Model(&models.EducationListener{}).Where("id_educationlistener = ?", request.ID_EducationListener).Updates(map[string]interface{}{
@@ -187,7 +196,7 @@ func UpdateListenersEducationListener(ctx *gin.Context) {
 		"region":                 request.Region,
 		"educationalinstitution": request.EducationalInstitution,
 		"speciality":             request.Speciality,
-		"leveleducation":         request.LevelEducation,
+		"id_leveleducation":      levelEducation.ID_LevelEducation,
 	})
 	if query.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
