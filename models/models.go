@@ -54,16 +54,15 @@ func (LevelEducation) TableName() string {
 }
 
 type EducationListener struct {
-	ID_EducationListener   uuid.UUID      `gorm:"column:id_educationlistener;primaryKey"`
-	DiplomSeria            int            `gorm:"column:diplomseria;unique"`
-	DiplomNumber           int            `gorm:"column:diplomnumber;unique"`
-	DateGiven              string         `gorm:"column:dategiven;type:date"`
-	City                   string         `gorm:"column:city"`
-	Region                 string         `gorm:"column:region"`
-	EducationalInstitution string         `gorm:"column:educationalinstitution"`
-	Speciality             string         `gorm:"column:speciality"`
-	ID_LevelEducation      uuid.UUID      `gorm:"column:id_leveleducation"`
-	LevelEducation         LevelEducation `gorm:"foreignKey:ID_LevelEducation"`
+	ID_EducationListener   uuid.UUID `gorm:"column:id_educationlistener;primaryKey"`
+	DiplomSeria            int       `gorm:"column:diplomseria;unique"`
+	DiplomNumber           int       `gorm:"column:diplomnumber;unique"`
+	DateGiven              string    `gorm:"column:dategiven;type:date"`
+	City                   string    `gorm:"column:city"`
+	Region                 string    `gorm:"column:region"`
+	EducationalInstitution string    `gorm:"column:educationalinstitution"`
+	Speciality             string    `gorm:"column:speciality"`
+	ID_LevelEducation      uuid.UUID `gorm:"column:id_leveleducation"`
 }
 
 func (EducationListener) TableName() string {
@@ -82,11 +81,22 @@ func (PlaceWork) TableName() string {
 	return "placework"
 }
 
+type DivisionsEducation struct {
+	ID_DivisionsEducation uuid.UUID `gorm:"column:id_divisionseducation;primaryKey"`
+	Divisions             string    `gorm:"column:divisions;unique"`
+}
+
+func (DivisionsEducation) TableName() string {
+	return "divisionseducation"
+}
+
 type ProgramEducation struct {
-	ID_ProgramEducation uuid.UUID `gorm:"column:id_programeducation;primaryKey"`
-	NameProfEducation   string    `gorm:"column:nameprofeducation"`
-	TypeOfEducation     string    `gorm:"column:typeofeducation"`
-	TimeEducation       int       `gorm:"column:timeeducation"`
+	ID_ProgramEducation   uuid.UUID          `gorm:"column:id_programeducation;primaryKey"`
+	NameProfEducation     string             `gorm:"column:nameprofeducation"`
+	TypeOfEducation       string             `gorm:"column:typeofeducation"`
+	TimeEducation         int                `gorm:"column:timeeducation"`
+	ID_DivisionsEducation uuid.UUID          `gorm:"column:id_divisionseducation"`
+	Division              DivisionsEducation `gorm:"foreignKey:ID_DivisionsEducation"`
 }
 
 func (ProgramEducation) TableName() string {
