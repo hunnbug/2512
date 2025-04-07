@@ -298,7 +298,7 @@ func DeleteListener(ctx *gin.Context) {
 // примерная версия (значения пагинации брать с url) желательно переделать под DTO
 func ReadListener(ctx *gin.Context) {
 
-	const LIMIT_COUNT = 2
+	const LIMIT_COUNT = 10
 
 	logging.WriteLog("получен запрос на получение слушателей")
 
