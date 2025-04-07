@@ -18,7 +18,7 @@ func CreateListener(ctx *gin.Context) {
 	logging.WriteLog("запрос: ", request)
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка привязки данных к структуре"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка сервера!"})
 		return
 	}
 
@@ -44,9 +44,11 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&passport).Error; err != nil {
 		tx.Rollback()
-		err = logging.WriteLog("Паспорт не создан", passport.ID_Passport)
-		logging.CheckLogError(err)
-		txDenied(ctx)
+		e := logging.WriteLog("Паспорт не создан", passport.ID_Passport)
+		logging.CheckLogError(e)
+		//txDenied(ctx, models.ErrorResponse{Err: err, Message: "Ошибка при создании паспорта!"})
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при создании паспорта!"})
 		return
 	}
 	logging.WriteLog("Создан паспорт", passport.ID_Passport)
@@ -64,18 +66,22 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&registrationAddress).Error; err != nil {
 		tx.Rollback()
-		err = logging.WriteLog("Адрес не создан", registrationAddress.ID_regAddress)
-		logging.CheckLogError(err)
-		txDenied(ctx)
+		e := logging.WriteLog("Адрес не создан", registrationAddress.ID_regAddress)
+		logging.CheckLogError(e)
+		//txDenied(ctx, models.ErrorResponse{Err: err, Message: "Ошибка при создании адреса!"})
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении адреса пользователя!"})
 		return
 	}
 	logging.WriteLog("Создан адрес слушателя", registrationAddress.ID_regAddress)
 
 	var levelEducation models.LevelEducation
 	if err := database.DB.First(&levelEducation, "Education = ?", request.EducationListener.LevelEducation).Error; err != nil {
-		err = logging.WriteLog("Уровень образования не найден", request.EducationListener.LevelEducation)
-		logging.CheckLogError(err)
-		txDenied(ctx)
+		e := logging.WriteLog("Уровень образования не найден", request.EducationListener.LevelEducation)
+		logging.CheckLogError(e)
+		//txDenied(ctx, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении уровня образования!"})
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении уровня образования слушателя!"})
 		return
 	}
 
@@ -93,9 +99,11 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&educationListener).Error; err != nil {
 		tx.Rollback()
-		err = logging.WriteLog("Образование слушателя не создано", educationListener.ID_EducationListener)
-		logging.CheckLogError(err)
-		txDenied(ctx)
+		e := logging.WriteLog("Образование слушателя не создано", educationListener.ID_EducationListener)
+		logging.CheckLogError(e)
+		//txDenied(ctx, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации об образовании слушателя!"})
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации об образовании слушателя!"})
 		return
 	}
 	logging.WriteLog("Создано образования слушателя", educationListener.ID_EducationListener)
@@ -110,18 +118,20 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&placeWork).Error; err != nil {
 		tx.Rollback()
-		err = logging.WriteLog("Место работы не создано", placeWork.ID_PlaceWork)
-		logging.CheckLogError(err)
-		txDenied(ctx)
+		e := logging.WriteLog("Место работы не создано", placeWork.ID_PlaceWork)
+		logging.CheckLogError(e)
+		//txDenied(ctx, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации о месте работы слушателя!"})
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении места работы слушателя!"})
 		return
 	}
 	logging.WriteLog("Создано место работы слушателя", placeWork.ID_PlaceWork)
 
 	// var programEducation models.ProgramEducation
 	// if err := database.DB.First(&programEducation, "nameprofeducation = ?", request.ProgramEducation.NameProfEducation).Error; err != nil {
-	// 	err = logging.WriteLog("Уровень образования не найден", request.ProgramEducation.NameProfEducation)
+	// 	e := logging.WriteLog("Уровень образования не найден", request.ProgramEducation.NameProfEducation)
 	// 	logging.CheckLogError(err)
-	// 	txDenied(ctx)
+	// 	txDenied(ctx, models.ErrorResponse{Err: err, Message: ""})})
 	// 	return
 	// }
 
@@ -142,9 +152,11 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&listener).Error; err != nil {
 		tx.Rollback()
-		err = logging.WriteLog("Слушатель не создан", listener.ID_Listener)
-		logging.CheckLogError(err)
-		txDenied(ctx, listener.ID_Listener)
+		e := logging.WriteLog("Слушатель не создан", listener.ID_Listener)
+		logging.CheckLogError(e)
+		//txDenied(ctx, listener.ID_Listener)
+
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при создании слушателя!"})
 		return
 	}
 	logging.WriteLog("Создан слушатель", listener.ID_Listener)
@@ -209,7 +221,6 @@ func UpdateListener(ctx *gin.Context) {
 
 	if err := tx.Commit().Error; err != nil {
 		txDenied(ctx, query)
-		logging.CheckLogError(err)
 	}
 
 	ctx.JSON(http.StatusOK, nil)
@@ -300,9 +311,9 @@ func ReadListener(ctx *gin.Context) {
 	err := ctx.BindJSON(&_page)
 
 	if err != nil {
-		logging.WriteLog("не удалось получить ответ от страницы: ", err)
+		e := logging.WriteLog("не удалось получить ответ от страницы: ", err)
 
-		logging.CheckLogError(err)
+		logging.CheckLogError(e)
 	}
 
 	logging.WriteLog("была получена страница: ", _page)
