@@ -36,8 +36,8 @@ func UpdateListenersPassport(ctx *gin.Context) {
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		err := logging.WriteLog("Транзакция не создана")
-		logging.CheckLogError(err)
+		logging.WriteLog("Транзакция не создана")
+		logging.TxDenied(ctx, tx.Error)
 	}
 
 	query := tx.Model(&models.Passport{}).Where("id_passport = ?", request.ID_Passport).Updates(map[string]interface{}{
@@ -56,10 +56,12 @@ func UpdateListenersPassport(ctx *gin.Context) {
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		logging.CheckLogError(err)
+		logging.TxDenied(ctx, err)
 	}
 
 	ctx.JSON(http.StatusOK, nil)
+	logging.WriteLog("Паспорт - ", request.ID_Passport, "- изменён")
+
 }
 
 // Обновление места работы
@@ -82,8 +84,8 @@ func UpdateListenersPlaceWork(ctx *gin.Context) {
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		err := logging.WriteLog("Транзакция не создана")
-		logging.CheckLogError(err)
+		logging.WriteLog("Транзакция не создана")
+		logging.TxDenied(ctx, tx.Error)
 	}
 
 	query := tx.Model(&models.PlaceWork{}).Where("id_placework = ?", request.ID_PlaceWork).Updates(map[string]interface{}{
@@ -98,10 +100,12 @@ func UpdateListenersPlaceWork(ctx *gin.Context) {
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		logging.CheckLogError(err)
+		logging.TxDenied(ctx, err)
 	}
 
 	ctx.JSON(http.StatusOK, nil)
+	logging.WriteLog("Место работы - ", request.ID_PlaceWork, "- изменёно")
+
 }
 
 // Обновление адреса регистрации
@@ -117,15 +121,15 @@ func UpdateListenersRegAddress(ctx *gin.Context) {
 	}
 
 	if err := database.DB.First(&existsRegAddress, "id_regaddress = ?", request.ID_regAddress).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
-		logging.WriteLog("Место работы не найдено")
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Адрес регистрации не найден"})
+		logging.WriteLog("Адрес регистрации не найден")
 		return
 	}
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		err := logging.WriteLog("Транзакция не создана")
-		logging.CheckLogError(err)
+		logging.WriteLog("Транзакция не создана")
+		logging.TxDenied(ctx, tx.Error)
 	}
 
 	query := tx.Model(&models.RegistrationAddress{}).Where("id_regaddress = ?", request.ID_regAddress).Updates(map[string]interface{}{
@@ -147,6 +151,8 @@ func UpdateListenersRegAddress(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, nil)
+	logging.WriteLog("Адрес работы - ", request.ID_regAddress, "- изменён")
+
 }
 
 // Обновление образования слушателя
@@ -169,15 +175,15 @@ func UpdateListenersEducation(ctx *gin.Context) {
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		err := logging.WriteLog("Транзакция не создана")
-		logging.CheckLogError(err)
+		logging.WriteLog("Транзакция не создана")
+		logging.TxDenied(ctx, tx.Error)
 	}
 
 	var levelEducation models.LevelEducation
 
 	if err := database.DB.First(&levelEducation, "education = ?", request.LevelEducation).Error; err != nil {
-		err = logging.WriteLog("Уровень образования не найден", request.LevelEducation)
-		logging.CheckLogError(err)
+		logging.WriteLog("Уровень образования не найден", request.LevelEducation)
+		logging.TxDenied(ctx, err)
 		return
 	}
 
@@ -197,8 +203,9 @@ func UpdateListenersEducation(ctx *gin.Context) {
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		logging.CheckLogError(err)
+		logging.TxDenied(ctx, err)
 	}
 
 	ctx.JSON(http.StatusOK, nil)
+	logging.WriteLog("Образование - ", request.ID_EducationListener, "- изменёно")
 }

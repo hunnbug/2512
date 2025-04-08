@@ -23,24 +23,15 @@ func LoginHandler(ctx *gin.Context) {
 		Password string
 	}
 
-	err := logging.WriteLog("получен запрос")
-
-	logging.CheckLogError(err)
-
 	var _loggedUser loggedUser
 
-	err = ctx.BindJSON(&_loggedUser)
+	err := ctx.BindJSON(&_loggedUser)
 
 	if err != nil {
 
-		e := logging.WriteLog("произошла ошибка при парсинге логина и пароля: ", err)
+		logging.WriteLog("произошла ошибка при парсинге логина и пароля: ", err)
 
-		logging.CheckLogError(e)
 	}
-
-	err = logging.WriteLog("получен логин: ", _loggedUser)
-
-	logging.CheckLogError(err)
 
 	//
 	//объект, в который будет пароситься найденный пользователь из БД
@@ -59,9 +50,7 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		e := logging.WriteLog("неверный логин: ", err)
-
-		logging.CheckLogError(e)
+		logging.WriteLog("неверный логин: ", err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный логин!"})
 
@@ -80,19 +69,13 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		e := logging.WriteLog("пароль не совпадает с хешем")
-
-		logging.CheckLogError(e)
+		logging.WriteLog("пароль не совпадает с хешем")
 
 		//при несовпадении пароля и хеша отдаем ошибку
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный пароль!"})
 
 		return
 	}
-
-	err = logging.WriteLog("taken user:", user)
-
-	logging.CheckLogError(err)
 
 	//
 	//создаем пейлод для жвт токена
@@ -114,18 +97,12 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		e := logging.WriteLog("ошибка во время создания токена: ", err)
-
-		logging.CheckLogError(e)
+		logging.WriteLog("ошибка во время создания токена: ", err)
 
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "невозможно создать токен"})
 
 		return
 	}
-
-	err = logging.WriteLog("jwt токен:", token)
-
-	logging.CheckLogError(err)
 
 	//
 	//объявляем структуру для того, чтоб отдавать токен на фронт
@@ -133,6 +110,8 @@ func LoginHandler(ctx *gin.Context) {
 	type responseToken struct {
 		Token string
 	}
+
+	logging.WriteLog("Авторизация пользователя", token[0:38])
 
 	ctx.JSON(200, responseToken{Token: token})
 }
