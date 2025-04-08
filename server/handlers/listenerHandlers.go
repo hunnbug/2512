@@ -302,13 +302,18 @@ func ReadListener(ctx *gin.Context) {
 
 	logging.WriteLog("получен запрос на получение слушателей")
 
-	type page struct {
-		CurrentPage int
+	type request struct {
+		CurrentPage  int
+		FirstName    string
+		SecondName   string
+		MiddleName   string
+		ContactPhone string
+		Email        string
 	}
 
-	var _page page
+	var _request request
 
-	err := ctx.BindJSON(&_page)
+	err := ctx.BindJSON(&_request)
 
 	if err != nil {
 		e := logging.WriteLog("не удалось получить ответ от страницы: ", err)
@@ -316,11 +321,21 @@ func ReadListener(ctx *gin.Context) {
 		logging.CheckLogError(e)
 	}
 
-	logging.WriteLog("была получена страница: ", _page)
+	logging.WriteLog("был получен запрос: ", _request)
 
 	var listeners []models.Listener
 
-	query := database.DB.Limit(LIMIT_COUNT).Offset((_page.CurrentPage - 1) * LIMIT_COUNT).Find(&listeners)
+	query := database.DB.Limit(LIMIT_COUNT).Offset((_request.CurrentPage-1)*LIMIT_COUNT).Find(&listeners,
+		`firstName LIKE ?
+		OR secondName LIKE ?
+		OR middleName LIKE ?
+		OR email LIKE ?
+		OR contactphone LIKE ?`,
+		"%"+_request.FirstName+"%",
+		"%"+_request.SecondName+"%",
+		"%"+_request.MiddleName+"%",
+		"%"+_request.Email+"%",
+		"%"+_request.ContactPhone+"%")
 
 	if query.Error != nil {
 

@@ -52,12 +52,10 @@ func UpdateListenersPassport(ctx *gin.Context) {
 	})
 	if query.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
-		txDenied(ctx, "Ошибка обновления записи")
 		return
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		txDenied(ctx, err)
 		logging.CheckLogError(err)
 	}
 
@@ -96,12 +94,10 @@ func UpdateListenersPlaceWork(ctx *gin.Context) {
 	})
 	if query.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
-		txDenied(ctx, "Ошибка обновления записи")
 		return
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		txDenied(ctx, err)
 		logging.CheckLogError(err)
 	}
 
@@ -143,12 +139,10 @@ func UpdateListenersRegAddress(ctx *gin.Context) {
 	})
 	if query.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
-		txDenied(ctx, "Ошибка обновления записи")
 		return
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		txDenied(ctx, err)
 		logging.CheckLogError(err)
 	}
 
@@ -184,7 +178,6 @@ func UpdateListenersEducation(ctx *gin.Context) {
 	if err := database.DB.First(&levelEducation, "education = ?", request.LevelEducation).Error; err != nil {
 		err = logging.WriteLog("Уровень образования не найден", request.LevelEducation)
 		logging.CheckLogError(err)
-		txDenied(ctx)
 		return
 	}
 
@@ -200,12 +193,10 @@ func UpdateListenersEducation(ctx *gin.Context) {
 	})
 	if query.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
-		txDenied(ctx, "Ошибка обновления записи")
 		return
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		txDenied(ctx, err)
 		logging.CheckLogError(err)
 	}
 
