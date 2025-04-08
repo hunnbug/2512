@@ -309,6 +309,7 @@ func ReadListener(ctx *gin.Context) {
 		MiddleName   string
 		ContactPhone string
 		Email        string
+		EmptyForm    bool
 	}
 
 	var _request request
@@ -322,6 +323,35 @@ func ReadListener(ctx *gin.Context) {
 	}
 
 	logging.WriteLog("был получен запрос: ", _request)
+
+	if !_request.EmptyForm {
+
+		if _request.FirstName == "" {
+
+			_request.FirstName = " "
+
+		}
+		if _request.SecondName == "" {
+
+			_request.SecondName = " "
+
+		}
+		if _request.MiddleName == "" {
+
+			_request.MiddleName = " "
+
+		}
+		if _request.ContactPhone == "" {
+
+			_request.ContactPhone = " "
+
+		}
+		if _request.Email == "" {
+
+			_request.Email = " "
+
+		}
+	}
 
 	var listeners []models.Listener
 
