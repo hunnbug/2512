@@ -31,7 +31,9 @@ func AboutListener(ctx *gin.Context) {
 		logging.WriteLog("Пользователь не найден")
 		return
 	}
+	logging.WriteLog("Авторизация пользователя")
 
+	logging.CheckLogError(err)
 	responseUUID := models.ListenerIDDTO{
 		ID_Passport:          listener.ID_passport,
 		ID_RegAddress:        listener.ID_regAddress,
