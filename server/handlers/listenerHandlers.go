@@ -356,6 +356,7 @@ func ReadListener(ctx *gin.Context) {
 	var listeners []models.Listener
 
 	query := database.DB.Limit(LIMIT_COUNT).Offset((_request.CurrentPage-1)*LIMIT_COUNT).Find(&listeners,
+
 		`firstName LIKE ?
 		OR secondName LIKE ?
 		OR middleName LIKE ?
