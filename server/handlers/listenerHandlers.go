@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"main/database"
 	"main/logging"
 	"main/models"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -286,7 +288,6 @@ func DeleteListener(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 }
 
-// примерная версия (значения пагинации брать с url) желательно переделать под DTO
 func ReadListener(ctx *gin.Context) {
 
 	const LIMIT_COUNT = 10
@@ -294,13 +295,13 @@ func ReadListener(ctx *gin.Context) {
 	logging.WriteLog("получен запрос на получение слушателей")
 
 	type request struct {
-		CurrentPage  int
-		FirstName    string
-		SecondName   string
-		MiddleName   string
-		ContactPhone string
-		Email        string
-		EmptyForm    bool
+		CurrentPage int
+		FirstField  string
+		SecondField string
+		ThirdField  string
+		FourthField string
+		FifthField  string
+		EmptyForm   bool
 	}
 
 	var _request request
@@ -312,57 +313,74 @@ func ReadListener(ctx *gin.Context) {
 
 	}
 
-	logging.WriteLog("был получен запрос: ", _request)
-
-	if !_request.EmptyForm {
-
-		if _request.FirstName == "" {
-
-			_request.FirstName = " "
-
-		}
-		if _request.SecondName == "" {
-
-			_request.SecondName = " "
-
-		}
-		if _request.MiddleName == "" {
-
-			_request.MiddleName = " "
-
-		}
-		if _request.ContactPhone == "" {
-
-			_request.ContactPhone = " "
-
-		}
-		if _request.Email == "" {
-
-			_request.Email = " "
-
-		}
-	}
-
 	var listeners []models.Listener
 
-	query := database.DB.Limit(LIMIT_COUNT).Offset((_request.CurrentPage-1)*LIMIT_COUNT).Find(&listeners,
+	//
+	//Если фильтры не введены - работает обычная пагинация
+	//
+	if _request.EmptyForm {
 
-		`firstName LIKE ?
-		OR secondName LIKE ?
-		OR middleName LIKE ?
-		OR email LIKE ?
-		OR contactphone LIKE ?`,
-		"%"+_request.FirstName+"%",
-		"%"+_request.SecondName+"%",
-		"%"+_request.MiddleName+"%",
-		"%"+_request.Email+"%",
-		"%"+_request.ContactPhone+"%")
+		query := database.DB.Limit(LIMIT_COUNT).Offset((_request.CurrentPage - 1) * LIMIT_COUNT).Find(&listeners)
 
-	if query.Error != nil {
+		if query.Error != nil {
 
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Слушатели не найдены"})
+			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Слушатели не найдены"})
 
-		return
+			return
+
+		}
+
+	} else {
+
+		type fieldsDTO struct {
+			firstField  string
+			secondField string
+			thirdField  string
+			fourthField string
+			fifthField  string
+		}
+
+		fields := fieldsDTO{
+
+			firstField:  _request.FirstField,
+			secondField: _request.SecondField,
+			thirdField:  _request.ThirdField,
+			fourthField: _request.FourthField,
+			fifthField:  _request.FifthField,
+		}
+
+		value := reflect.ValueOf(fields)
+
+		requests := []string{
+
+			"firstname LIKE ?",
+			"secondname LIKE ?",
+			"middlename LIKE ?",
+			"contactphone LIKE ?",
+			"email LIKE ?",
+		}
+
+		for i := range value.NumField() {
+
+			for j := range requests {
+
+				if requests[j] != "" {
+
+					query := database.DB.Find(&listeners, requests[j], "%"+value.Field(i).String()+"%")
+
+					fmt.Println(requests[j])
+
+					if query.RowsAffected != 0 {
+
+						requests[j] = ""
+
+					}
+
+				}
+
+			}
+		}
+
 	}
 
 	ctx.JSON(http.StatusOK, listeners)
