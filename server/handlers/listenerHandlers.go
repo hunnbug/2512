@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"main/database"
 	"main/logging"
 	"main/models"
@@ -351,35 +350,37 @@ func ReadListener(ctx *gin.Context) {
 
 		value := reflect.ValueOf(fields)
 
-		requests := []string{
-
-			"firstname LIKE ?",
-			"secondname LIKE ?",
-			"middlename LIKE ?",
-			"contactphone LIKE ?",
-			"email LIKE ?",
-		}
+		var notNullFields []string
 
 		for i := range value.NumField() {
 
-			for j := range requests {
+			if value.Field(i).String() != "" {
 
-				if requests[j] != "" {
-
-					query := database.DB.Find(&listeners, requests[j], "%"+value.Field(i).String()+"%")
-
-					fmt.Println(requests[j])
-
-					if query.RowsAffected != 0 {
-
-						requests[j] = ""
-
-					}
-
-				}
+				notNullFields = append(notNullFields, value.Field(i).String())
 
 			}
+
 		}
+
+		var requestString string
+
+		for i := 0; i < len(notNullFields)-1; i++ {
+
+			requestString += "(firstname LIKE '%" + notNullFields[i] + "%' OR "
+			requestString += "secondname LIKE '%" + notNullFields[i] + "%' OR "
+			requestString += "middlename LIKE '%" + notNullFields[i] + "%' OR "
+			requestString += "contactphone LIKE '%" + notNullFields[i] + "%' OR "
+			requestString += "email LIKE '%" + notNullFields[i] + "%') AND "
+
+		}
+
+		requestString += "(firstname LIKE '%" + notNullFields[len(notNullFields)-1] + "%' OR "
+		requestString += "secondname LIKE '%" + notNullFields[len(notNullFields)-1] + "%' OR "
+		requestString += "middlename LIKE '%" + notNullFields[len(notNullFields)-1] + "%' OR "
+		requestString += "contactphone LIKE '%" + notNullFields[len(notNullFields)-1] + "%' OR "
+		requestString += "email LIKE '%" + notNullFields[len(notNullFields)-1] + "%')"
+
+		database.DB.Find(&listeners, requestString)
 
 	}
 
