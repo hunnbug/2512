@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // создание слушателя
@@ -234,57 +235,44 @@ func DeleteListener(ctx *gin.Context) {
 	tx := database.DB.Begin()
 	if tx.Error != nil {
 		logging.WriteLog("Транзакция не создана")
-
 	}
 
 	if err := tx.Delete(&models.Listener{}, id).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не удалён"})
-		logging.WriteLog("Пользователь не удалён")
-		logging.TxDenied(ctx, err)
-		return
+		CheckDeleteError(ctx, err, tx, "Слушатель не найден")
 	}
 
 	if err := tx.Where("id_passport = ?", listener.ID_passport).Delete(&models.Passport{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})
-		logging.WriteLog("Паспорт не найден")
-		logging.TxDenied(ctx, err)
-		return
+		CheckDeleteError(ctx, err, tx, "Паспорт не найден")
 	}
 
 	if err := tx.Where("id_regaddress = ?", listener.ID_regAddress).Delete(&models.RegistrationAddress{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Адрес не найден"})
-		logging.WriteLog("Адрес не найден")
-		logging.TxDenied(ctx, err)
-		return
+		CheckDeleteError(ctx, err, tx, "Адрес не найден")
 	}
 
 	if err := tx.Where("id_educationlistener = ?", listener.ID_EducationListener).Delete(&models.EducationListener{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Образование не найдено"})
-		logging.WriteLog("Образование не найдено")
-		logging.TxDenied(ctx, err)
-		return
+		CheckDeleteError(ctx, err, tx, "Образование не найдено")
 	}
 
 	if err := tx.Where("id_placework = ?", listener.ID_PlaceWork).Delete(&models.PlaceWork{}).Error; err != nil {
-		tx.Rollback()
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
-		logging.WriteLog("Место работы не найдено")
-		logging.TxDenied(ctx, err)
-		return
+		CheckDeleteError(ctx, err, tx, "Работа не найдена")
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		logging.TxDenied(ctx, "Удаление не произведено")
+		logging.TxDenied("Удаление не произведено")
 	}
 	logging.WriteLog("-----------------")
 	logging.WriteLog("Удалён пользователь и все смежные данные", listener.ID_Listener)
 	logging.WriteLog("-----------------")
 
 	ctx.JSON(http.StatusOK, nil)
+}
+
+func CheckDeleteError(ctx *gin.Context, err error, tx *gorm.DB, i string) {
+	tx.Rollback()
+	ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: i})
+	logging.WriteLog("Образование не найдено")
+	logging.TxDenied(err)
+	return
 }
 
 func ReadListener(ctx *gin.Context) {

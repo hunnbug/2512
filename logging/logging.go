@@ -4,8 +4,6 @@ import (
 	"io"
 	"log"
 	"os"
-
-	"github.com/gin-gonic/gin"
 )
 
 func WriteLog(v ...any) error {
@@ -36,7 +34,7 @@ func CheckLogError(err error) {
 	}
 }
 
-func TxDenied(ctx *gin.Context, v ...any) {
+func TxDenied(v ...any) {
 	WriteLog("Транзакция отменена", v)
 	WriteLog("----------------------------------------------")
 }
