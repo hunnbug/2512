@@ -352,6 +352,9 @@ func ReadListener(ctx *gin.Context) {
 
 		var notNullFields []string
 
+		//
+		//перебор всех полей из фильтрации и отсечение пустых
+		//
 		for i := range value.NumField() {
 
 			if value.Field(i).String() != "" {
@@ -364,6 +367,9 @@ func ReadListener(ctx *gin.Context) {
 
 		var requestString string
 
+		//
+		//добавление всех строк для фильтрации в запрос
+		//
 		for i := 0; i < len(notNullFields)-1; i++ {
 
 			requestString += "(firstname LIKE '%" + notNullFields[i] + "%' OR "
