@@ -90,13 +90,26 @@ func (DivisionsEducation) TableName() string {
 	return "divisionseducation"
 }
 
+type EducationTypes struct {
+	ID_ProgramEducation uuid.UUID `gorm:"column:id_educationtype;primaryKey"`
+	TypeName            string    `gorm:"column:typename"`
+}
+
+func (EducationTypes) TableName() string {
+	return "educationtypes"
+}
+
 type ProgramEducation struct {
 	ID_ProgramEducation   uuid.UUID          `gorm:"column:id_programeducation;primaryKey"`
 	NameProfEducation     string             `gorm:"column:nameprofeducation"`
-	TypeOfEducation       string             `gorm:"column:typeofeducation"`
 	TimeEducation         int                `gorm:"column:timeeducation"`
 	ID_DivisionsEducation uuid.UUID          `gorm:"column:id_divisionseducation"`
 	Division              DivisionsEducation `gorm:"foreignKey:ID_DivisionsEducation"`
+	IndividualPrice       float32            `gorm:"column:individualprice"`
+	GroupPrice            float32            `gorm:"column:groupprice"`
+	CampusPrice           float32            `gorm:"column:campusprice"`
+	ID_EducationType      uuid.UUID          `gorm:"column:id_educationtype"`
+	EducationType         EducationTypes     `gorm:"foreignKey:ID_EducationType"`
 }
 
 func (ProgramEducation) TableName() string {
@@ -129,6 +142,8 @@ func (Listener) TableName() string {
 type ListenerProgramEducation struct {
 	ID_Listener         uuid.UUID        `gorm:"primaryKey;column:id_listener"`
 	ID_ProgramEducation uuid.UUID        `gorm:"primaryKey;column:id_programeducation"`
+	StartDate           string           `gorm:"column:startdate;type:date"`
+	EndDate             string           `gorm:"column:enddate;type:date"`
 	Listener            Listener         `gorm:"foreignKey:ID_Listener"`
 	ProgramEducation    ProgramEducation `gorm:"foreignKey:ID_ProgramEducation"`
 }

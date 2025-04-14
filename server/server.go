@@ -39,7 +39,10 @@ func Start() {
 	r.PUT("/listeners/:id/about/update/education", handlers.UpdateListenersEducation)
 	r.PUT("/listeners/:id/about/update/placework", handlers.UpdateListenersPlaceWork)
 	r.PUT("/listeners/:id/about/update/regaddress", handlers.UpdateListenersRegAddress)
-	r.PUT("/listeners/:id/about/update/programeducation", handlers.UpdateListenersPassport)
+
+	//Enrollments
+	r.GET("/listeners/:id/about/enrollments", handlers.GetProgramInfo)
+	r.GET("/listeners/:id/about/enrollments/program", handlers.SelectProgramEducation)
 
 	r.Run("localhost:8080")
 
