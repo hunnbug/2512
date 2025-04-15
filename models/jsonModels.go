@@ -67,3 +67,11 @@ type CreateListenerRequest struct {
 type DivisionsEducationRequests struct {
 	ID_DivisionsEducation string `json:"id_divisionseducation"`
 }
+
+type EnrollmentsRequests struct {
+	ID_Listener  string `json:"id_listener"`
+	ID_Program   string `json:"id_program"`
+	StartDate    string `json:"startdate"`
+	EndDate      string `json:"enddate"`
+	PersonalCard string `json:"personalcard"`
+}

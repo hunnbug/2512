@@ -4,12 +4,12 @@ import (
 	"main/database"
 	"main/logging"
 	"main/models"
+	"main/tools"
 	"net/http"
 	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 // создание слушателя
@@ -237,42 +237,27 @@ func DeleteListener(ctx *gin.Context) {
 		logging.WriteLog("Транзакция не создана")
 	}
 
-	if err := tx.Delete(&models.Listener{}, id).Error; err != nil {
-		CheckDeleteError(ctx, err, tx, "Слушатель не найден")
-	}
+	tools.DeleteRows(ctx, tx, &models.Listener{}, "id_listener = ?", listener.ID_Listener)
 
-	if err := tx.Where("id_passport = ?", listener.ID_passport).Delete(&models.Passport{}).Error; err != nil {
-		CheckDeleteError(ctx, err, tx, "Паспорт не найден")
-	}
+	tools.DeleteRows(ctx, tx, &models.Passport{}, "id_passport = ?", listener.ID_passport)
 
-	if err := tx.Where("id_regaddress = ?", listener.ID_regAddress).Delete(&models.RegistrationAddress{}).Error; err != nil {
-		CheckDeleteError(ctx, err, tx, "Адрес не найден")
-	}
+	tools.DeleteRows(ctx, tx, &models.RegistrationAddress{}, "id_regaddress = ?", listener.ID_regAddress)
 
-	if err := tx.Where("id_educationlistener = ?", listener.ID_EducationListener).Delete(&models.EducationListener{}).Error; err != nil {
-		CheckDeleteError(ctx, err, tx, "Образование не найдено")
-	}
+	tools.DeleteRows(ctx, tx, &models.EducationListener{}, "id_educationlistener = ?", listener.ID_EducationListener)
 
-	if err := tx.Where("id_placework = ?", listener.ID_PlaceWork).Delete(&models.PlaceWork{}).Error; err != nil {
-		CheckDeleteError(ctx, err, tx, "Работа не найдена")
-	}
+	tools.DeleteRows(ctx, tx, &models.PlaceWork{}, "id_placework = ?", listener.ID_PlaceWork)
 
 	if err := tx.Commit().Error; err != nil {
 		logging.TxDenied("Удаление не произведено")
 	}
-	logging.WriteLog("-----------------")
-	logging.WriteLog("Удалён пользователь и все смежные данные", listener.ID_Listener)
-	logging.WriteLog("-----------------")
 
 	ctx.JSON(http.StatusOK, nil)
-}
 
-func CheckDeleteError(ctx *gin.Context, err error, tx *gorm.DB, i string) {
-	tx.Rollback()
-	ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: i})
-	logging.WriteLog("Образование не найдено")
-	logging.TxDenied(err)
-	return
+	if tx.Error == nil {
+		logging.WriteLog("-----------------")
+		logging.WriteLog("Удалён пользователь и все смежные данные", listener.ID_Listener)
+		logging.WriteLog("-----------------")
+	}
 }
 
 func ReadListener(ctx *gin.Context) {
