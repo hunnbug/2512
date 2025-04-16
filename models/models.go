@@ -54,15 +54,16 @@ func (LevelEducation) TableName() string {
 }
 
 type EducationListener struct {
-	ID_EducationListener   uuid.UUID `gorm:"column:id_educationlistener;primaryKey"`
-	DiplomSeria            int       `gorm:"column:diplomseria;unique"`
-	DiplomNumber           int       `gorm:"column:diplomnumber;unique"`
-	DateGiven              string    `gorm:"column:dategiven;type:date"`
-	City                   string    `gorm:"column:city"`
-	Region                 string    `gorm:"column:region"`
-	EducationalInstitution string    `gorm:"column:educationalinstitution"`
-	Speciality             string    `gorm:"column:speciality"`
-	ID_LevelEducation      uuid.UUID `gorm:"column:id_leveleducation"`
+	ID_EducationListener   uuid.UUID      `gorm:"column:id_educationlistener;primaryKey"`
+	DiplomSeria            int            `gorm:"column:diplomseria;unique"`
+	DiplomNumber           int            `gorm:"column:diplomnumber;unique"`
+	DateGiven              string         `gorm:"column:dategiven;type:date"`
+	City                   string         `gorm:"column:city"`
+	Region                 string         `gorm:"column:region"`
+	EducationalInstitution string         `gorm:"column:educationalinstitution"`
+	Speciality             string         `gorm:"column:speciality"`
+	ID_LevelEducation      uuid.UUID      `gorm:"column:id_leveleducation"`
+	LevelEducation         LevelEducation `gorm:"foreignKey:ID_LevelEducation"`
 }
 
 func (EducationListener) TableName() string {

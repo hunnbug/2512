@@ -15,10 +15,10 @@ import (
 // создание слушателя
 func CreateListener(ctx *gin.Context) {
 
-	var request models.CreateListenerRequest
-
 	logging.WriteLog("----------------------------------------------")
 	logging.WriteLog("запрос на создание слушателя")
+
+	var request models.CreateListenerRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка сервера!"})
@@ -28,6 +28,7 @@ func CreateListener(ctx *gin.Context) {
 	tx := database.DB.Begin()
 	if tx.Error != nil {
 		logging.WriteLog("Транзакция не создана")
+		return
 	}
 
 	passport := models.Passport{
@@ -161,80 +162,22 @@ func CreateListener(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, nil)
 }
 
-func UpdateListener(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка Parse id"})
-		logging.WriteLog("Ошибка Parse id")
-		return
-	}
-
-	var request models.Listener
-	var existsListener models.Listener
-
-	if err := database.DB.First(&existsListener, "id_listener = ?", id).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
-		logging.WriteLog("Пользователь не найден")
-		return
-	}
-
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка обработки запроса!"})
-		logging.WriteLog("Ошибка привязки данных к структуре")
-		return
-	}
-
-	tx := database.DB.Begin()
-	if tx.Error != nil {
-		logging.WriteLog("Транзакция не создана")
-	}
-
-	query := tx.Model(&models.Listener{}).Where("id_listener = ?", id).Updates(map[string]interface{}{
-		"firstname":    request.FirstName,
-		"secondname":   request.SecondName,
-		"middlename":   request.MiddleName,
-		"dateofbirth":  request.DateOfBirth,
-		"snils":        request.SNILS,
-		"contactphone": request.ContactPhone,
-		"email":        request.Email,
-	})
-	if query.Error != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: query.Error, Message: "Ошибка обновления записи"})
-		logging.TxDenied(ctx, err)
-
-		return
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		logging.TxDenied(ctx, err)
-	}
-
-	logging.WriteLog("Слушатель - ", existsListener.ID_Listener, "- изменён")
-
-	ctx.JSON(http.StatusOK, nil)
-
-}
-
 func DeleteListener(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := uuid.Parse(idParam)
+	id, err := tools.CheckParamID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка Parse id"})
-		logging.WriteLog("Ошибка Parse id")
 		return
 	}
 
 	var listener models.Listener
-	if err := database.DB.First(&listener, "id_listener = ?", id).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
-		logging.WriteLog("Пользователь не найден")
+	err = tools.CheckRecord(ctx, &listener, "id_listener = ?", id)
+	if err != nil {
 		return
 	}
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
 		logging.WriteLog("Транзакция не создана")
+		return
 	}
 
 	tools.DeleteRows(ctx, tx, &models.Listener{}, "id_listener = ?", listener.ID_Listener)

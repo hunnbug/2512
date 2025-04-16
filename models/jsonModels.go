@@ -43,10 +43,15 @@ type PlaceWorkRequest struct {
 	JobTitleExpirience int    `json:"jobTitleExpirience"`
 }
 
-type ProgramRequest struct {
-	NameProfEducation string `json:"nameProfEducation"`
-	TypeOfEducation   string `json:"typeOfEducation"`
-	TimeEducation     int    `json:"timeEducation"`
+type ProgramEducationRequest struct {
+	NameProfEducation string  `json:"nameProfEducation"`
+	TypeOfEducation   string  `json:"typeOfEducation"`
+	TimeEducation     int     `json:"timeEducation"`
+	Division          string  `json:"division"`
+	IndividualPrice   float32 `json:"individualprice"`
+	GroupPrice        float32 `json:"groupprice"`
+	CampusPrice       float32 `json:"campusprice"`
+	EducationType     string  `json:"educationtype"`
 }
 
 type CreateListenerRequest struct {
@@ -61,7 +66,6 @@ type CreateListenerRequest struct {
 	RegistrationAddress RegAddressRequest        `json:"registrationAddress"`
 	EducationListener   EducationListenerRequest `json:"education"`
 	PlaceWork           PlaceWorkRequest         `json:"placeWork"`
-	ProgramEducation    ProgramRequest           `json:"programEducation"`
 }
 
 type DivisionsEducationRequests struct {
@@ -74,4 +78,63 @@ type EnrollmentsRequests struct {
 	StartDate    string `json:"startdate"`
 	EndDate      string `json:"enddate"`
 	PersonalCard string `json:"personalcard"`
+}
+
+//update
+
+type EducationListenerUpdateRequest struct {
+	ID_EducationListener   string `json:"id_educationlistener"`
+	DiplomSeria            int    `json:"diplomSeria"`
+	DiplomNumber           int    `json:"diplomNumber"`
+	DateGiven              string `json:"dateGiven"`
+	City                   string `json:"city"`
+	Region                 string `json:"region"`
+	EducationalInstitution string `json:"educationalInstitution"`
+	Speciality             string `json:"speciality"`
+	LevelEducation         string `json:"levelEducation"`
+}
+
+type PlaceWorkUpdateRequest struct {
+	ID_Placework       string `json:"id_placework"`
+	NameCompany        string `json:"nameCompany"`
+	JobTitle           string `json:"jobTitle"`
+	AllExperience      int    `json:"allExperience"`
+	JobTitleExpirience int    `json:"jobTitleExpirience"`
+}
+
+type RegAddressUpdateRequest struct {
+	ID_RegAddress string `json:"id_regaddress"`
+	MailIndex     int    `json:"mailIndex"`
+	Region        string `json:"region"`
+	City          string `json:"city"`
+	Street        string `json:"street"`
+	House         string `json:"house"`
+	Building      string `json:"building"`
+	Apartment     string `json:"apartment"`
+}
+
+type PassportUpdateRequest struct {
+	ID_Passport   string `json:"id_passport"`
+	PlaceBirth    string `json:"placeBirth"`
+	Citizenship   string `json:"citizenship"`
+	Gender        string `json:"gender"`
+	Seria         int    `json:"seria"`
+	Number        int    `json:"number"`
+	PassportGiven string `json:"passportGiven"`
+	DateGiven     string `json:"dateGiven"`
+	Code          string `json:"code"`
+}
+
+type UpdateListenerRequest struct {
+	FirstName           string                         `json:"firstName"`
+	SecondName          string                         `json:"secondName"`
+	MiddleName          string                         `json:"middleName"`
+	DateOfBirth         string                         `json:"dateOfBirth"`
+	SNILS               string                         `json:"snils"`
+	ContactPhone        string                         `json:"contactPhone"`
+	Email               string                         `json:"email"`
+	Passport            PassportUpdateRequest          `json:"passport"`
+	RegistrationAddress RegAddressUpdateRequest        `json:"registrationAddress"`
+	EducationListener   EducationListenerUpdateRequest `json:"education"`
+	PlaceWork           PlaceWorkUpdateRequest         `json:"placeWork"`
 }
