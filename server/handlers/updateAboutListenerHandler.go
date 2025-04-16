@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"main/database"
 	"main/logging"
 	"main/models"
@@ -20,11 +21,13 @@ func UpdateListenerData(ctx *gin.Context) {
 	// проверка на существовании записи в отдельной переменной чтобы избежать перезаписывания модели
 	var existsPassport models.Passport
 
-	if err := ctx.ShouldBindJSON(&requestPassport); err != nil {
+	if err := ctx.ShouldBindJSON(&existsPassport); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка обработки запроса!"})
 		logging.WriteLog("Ошибка привязки данных к структуре")
 		return
 	}
+
+	fmt.Println(requestPassport.Citizenship)
 
 	if err := database.DB.First(&existsPassport, "id_passport = ?", requestPassport.ID_Passport).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})

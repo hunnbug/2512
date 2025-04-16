@@ -38,9 +38,6 @@ func LoginHandler(ctx *gin.Context) {
 	//
 	var user models.User
 
-	//
-	//начинаем транзакцию к БД
-	//
 	tx := database.DB.Begin()
 
 	//
@@ -71,7 +68,6 @@ func LoginHandler(ctx *gin.Context) {
 
 		logging.WriteLog("пароль не совпадает с хешем")
 
-		//при несовпадении пароля и хеша отдаем ошибку
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный пароль!"})
 
 		return
