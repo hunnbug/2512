@@ -1,5 +1,7 @@
 package models
 
+import "github.com/google/uuid"
+
 type PassportRequest struct {
 	PlaceBirth    string `json:"placeBirth"`
 	Citizenship   string `json:"citizenship"`
@@ -44,14 +46,13 @@ type PlaceWorkRequest struct {
 }
 
 type ProgramEducationRequest struct {
-	NameProfEducation string  `json:"nameProfEducation"`
-	TypeOfEducation   string  `json:"typeOfEducation"`
-	TimeEducation     int     `json:"timeEducation"`
-	Division          string  `json:"division"`
-	IndividualPrice   float32 `json:"individualprice"`
-	GroupPrice        float32 `json:"groupprice"`
-	CampusPrice       float32 `json:"campusprice"`
-	EducationType     string  `json:"educationtype"`
+	NameProfEducation     string    `json:"nameProfEducation"`
+	TimeEducation         int       `json:"timeEducation"`
+	IndividualPrice       float32   `json:"individualprice"`
+	GroupPrice            float32   `json:"groupprice"`
+	CampusPrice           float32   `json:"campusprice"`
+	ID_DivisionsEducation uuid.UUID `json:"id_divisionseducation"`
+	ID_EducationType      uuid.UUID `json:"id_educationtype"`
 }
 
 type CreateListenerRequest struct {

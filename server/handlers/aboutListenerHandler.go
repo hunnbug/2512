@@ -31,7 +31,6 @@ func AboutListener(ctx *gin.Context) {
 		logging.WriteLog(logging.ERROR, "Пользователь не найден")
 		return
 	}
-	logging.WriteLog(logging.DEBUG, "Авторизация пользователя")
 
 	logging.CheckLogError(err)
 	responseUUID := models.ListenerIDDTO{
@@ -134,6 +133,8 @@ func AboutListener(ctx *gin.Context) {
 		"placeWork":         responsePlacework,
 		"responseuuid":      responseUUID,
 	})
+
+	logging.WriteLog(logging.DEBUG, "Получен пользователь - ", listener.ID_Listener)
 
 }
 

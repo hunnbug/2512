@@ -40,8 +40,14 @@ func Start() {
 	r.GET("/listeners/:id/about/enrollments", handlers.GetProgramInfo)
 	r.GET("/listeners/:id/about/enrollments/program", handlers.SelectProgramEducation)
 
-	//
+	//LevelEducation
 	r.GET("/levelEducation", handlers.GetAllLevelsEducation)
+
+	//ProgramEducation
+	r.POST("/programeducation/create", handlers.CreateProgram)
+	r.DELETE("/programeducation/:id/delete", handlers.DeleteProgram)
+	r.PUT("/programeducation/:id/update", handlers.UpdateProgram)
+	r.POST("/programeducation", handlers.ReadProgram)
 
 	r.Run("localhost:8080")
 
