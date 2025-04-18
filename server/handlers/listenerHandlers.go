@@ -15,8 +15,8 @@ import (
 // создание слушателя
 func CreateListener(ctx *gin.Context) {
 
-	logging.WriteLog("----------------------------------------------")
-	logging.WriteLog("запрос на создание слушателя")
+	logging.WriteLog(logging.ERROR, logging.DEBUG, "----------------------------------------------")
+	logging.WriteLog(logging.ERROR, logging.DEBUG, "запрос на создание слушателя")
 
 	var request models.CreateListenerRequest
 
@@ -27,7 +27,7 @@ func CreateListener(ctx *gin.Context) {
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		logging.WriteLog("Транзакция не создана")
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Транзакция не создана")
 		return
 	}
 
@@ -45,14 +45,14 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&passport).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog("Паспорт не создан", passport.ID_Passport)
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Паспорт не создан", passport.ID_Passport)
 
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при создании паспорта!"})
 		return
 	}
-	logging.WriteLog("Создан паспорт", passport.ID_Passport)
+	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создан паспорт", passport.ID_Passport)
 
 	registrationAddress := models.RegistrationAddress{
 		ID_regAddress: uuid.New(),
@@ -67,18 +67,18 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&registrationAddress).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog("Адрес не создан", registrationAddress.ID_regAddress)
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Адрес не создан", registrationAddress.ID_regAddress)
 
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении адреса пользователя!"})
 		return
 	}
-	logging.WriteLog("Создан адрес слушателя", registrationAddress.ID_regAddress)
+	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
 
 	var levelEducation models.LevelEducation
 	if err := database.DB.First(&levelEducation, "Education = ?", request.EducationListener.LevelEducation).Error; err != nil {
-		logging.WriteLog("Уровень образования не найден", request.EducationListener.LevelEducation)
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении уровня образования слушателя!"})
@@ -99,13 +99,13 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&educationListener).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog("Образование слушателя не создано", educationListener.ID_EducationListener)
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Образование слушателя не создано", educationListener.ID_EducationListener)
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации об образовании слушателя!"})
 		return
 	}
-	logging.WriteLog("Создано образования слушателя", educationListener.ID_EducationListener)
+	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
 
 	placeWork := models.PlaceWork{
 		ID_PlaceWork:       uuid.New(),
@@ -117,13 +117,13 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&placeWork).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog("Место работы не создано", placeWork.ID_PlaceWork)
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Место работы не создано", placeWork.ID_PlaceWork)
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении места работы слушателя!"})
 		return
 	}
-	logging.WriteLog("Создано место работы слушателя", placeWork.ID_PlaceWork)
+	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создано место работы слушателя", placeWork.ID_PlaceWork)
 
 	listener := models.Listener{
 		ID_Listener:          uuid.New(),
@@ -142,22 +142,22 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&listener).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog("Слушатель не создан", listener.ID_Listener)
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Слушатель не создан", listener.ID_Listener)
 
 		logging.TxDenied(ctx, listener.ID_Listener)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при создании слушателя!"})
 		return
 	}
-	logging.WriteLog("Создан слушатель", listener.ID_Listener)
+	logging.WriteLog(logging.DEBUG, "Создан слушатель", listener.ID_Listener)
 
 	if err := tx.Commit().Error; err != nil {
 		logging.TxDenied(ctx, listener.ID_Listener)
 		return
 	}
-	logging.WriteLog("Записи успешно зарегистрированы, слушатель - ", listener.ID_Listener)
+	logging.WriteLog(logging.DEBUG, "Записи успешно зарегистрированы, слушатель - ", listener.ID_Listener)
 
-	logging.WriteLog("----------------------------------------------")
+	logging.WriteLog(logging.DEBUG, "----------------------------------------------")
 
 	ctx.JSON(http.StatusCreated, nil)
 }
@@ -176,7 +176,7 @@ func DeleteListener(ctx *gin.Context) {
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		logging.WriteLog("Транзакция не создана")
+		logging.WriteLog(logging.ERROR, "Транзакция не создана")
 		return
 	}
 
@@ -197,9 +197,9 @@ func DeleteListener(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, nil)
 
 	if tx.Error == nil {
-		logging.WriteLog("-----------------")
-		logging.WriteLog("Удалён пользователь и все смежные данные", listener.ID_Listener)
-		logging.WriteLog("-----------------")
+		logging.WriteLog(logging.DEBUG, "-----------------")
+		logging.WriteLog(logging.DEBUG, "Удалён пользователь и все смежные данные", listener.ID_Listener)
+		logging.WriteLog(logging.DEBUG, "-----------------")
 	}
 }
 
@@ -207,7 +207,7 @@ func ReadListener(ctx *gin.Context) {
 
 	const LIMIT_COUNT = 10
 
-	logging.WriteLog("получен запрос на получение слушателей")
+	logging.WriteLog(logging.DEBUG, "получен запрос на получение слушателей")
 
 	type request struct {
 		CurrentPage int
@@ -224,7 +224,7 @@ func ReadListener(ctx *gin.Context) {
 	err := ctx.BindJSON(&_request)
 
 	if err != nil {
-		logging.WriteLog("не удалось получить ответ от страницы: ", err)
+		logging.WriteLog(logging.ERROR, "не удалось получить ответ от страницы: ", err)
 
 	}
 

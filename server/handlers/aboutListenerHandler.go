@@ -16,7 +16,7 @@ func AboutListener(ctx *gin.Context) {
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка Parse id"})
-		logging.WriteLog("Ошибка Parse id")
+		logging.WriteLog(logging.ERROR, "Ошибка Parse id")
 		return
 	}
 
@@ -28,10 +28,10 @@ func AboutListener(ctx *gin.Context) {
 	querry := database.DB.First(&listener, "id_listener = ?", id)
 	if querry.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
-		logging.WriteLog("Пользователь не найден")
+		logging.WriteLog(logging.ERROR, "Пользователь не найден")
 		return
 	}
-	logging.WriteLog("Авторизация пользователя")
+	logging.WriteLog(logging.DEBUG, "Авторизация пользователя")
 
 	logging.CheckLogError(err)
 	responseUUID := models.ListenerIDDTO{
@@ -49,25 +49,25 @@ func AboutListener(ctx *gin.Context) {
 
 	if err := database.DB.First(&passport, "id_passport = ?", responseUUID.ID_Passport).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})
-		logging.WriteLog("Паспорт не найден")
+		logging.WriteLog(logging.ERROR, "Паспорт не найден")
 		return
 	}
 
 	if err := database.DB.First(&regAddress, "id_regaddress = ?", responseUUID.ID_RegAddress).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Адрес не найден"})
-		logging.WriteLog("Адрес не найден")
+		logging.WriteLog(logging.ERROR, "Адрес не найден")
 		return
 	}
 
 	if err := database.DB.First(&educationListener, "id_educationlistener = ?", responseUUID.ID_EducationListener).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Образование не найдено"})
-		logging.WriteLog("Образование не найдено")
+		logging.WriteLog(logging.ERROR, "Образование не найдено")
 		return
 	}
 
 	if err := database.DB.First(&placework, "id_placework = ?", responseUUID.ID_PlaceWork).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
-		logging.WriteLog("Место работы не найдено")
+		logging.WriteLog(logging.ERROR, "Место работы не найдено")
 		return
 	}
 
@@ -105,7 +105,7 @@ func AboutListener(ctx *gin.Context) {
 	var leveleducation models.LevelEducation
 	if err := database.DB.Find(&leveleducation, "id_leveleducation", educationListener.ID_LevelEducation).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Уровень образования не найден"})
-		logging.WriteLog("Уровень образования не найден")
+		logging.WriteLog(logging.ERROR, "Уровень образования не найден")
 		return
 	}
 	responseEducationListener := models.EducationListenerDTO{
@@ -149,19 +149,19 @@ func UpdateListenerData(ctx *gin.Context) {
 	var existsPassport models.Passport
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		logging.WriteLog("Транзакция не создана")
+		logging.WriteLog(logging.ERROR, "Транзакция не создана")
 		logging.TxDenied(ctx, tx.Error)
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка обработки запроса!"})
-		logging.WriteLog("Ошибка привязки данных к структуре")
+		logging.WriteLog(logging.ERROR, "Ошибка привязки данных к структуре")
 		return
 	}
 
 	if err := database.DB.First(&existsPassport, "id_passport = ?", request.Passport.ID_Passport).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Паспорт не найден"})
-		logging.WriteLog("Паспорт не найден")
+		logging.WriteLog(logging.ERROR, "Паспорт не найден")
 		return
 	}
 
@@ -180,14 +180,14 @@ func UpdateListenerData(ctx *gin.Context) {
 		return
 	}
 
-	logging.WriteLog("Паспорт - ", request.Passport.ID_Passport, "- изменён")
+	logging.WriteLog(logging.DEBUG, "Паспорт - ", request.Passport.ID_Passport, "- изменён")
 
 	//Placework
 	var existsPlaceWork models.PlaceWork
 
 	if err := database.DB.First(&existsPlaceWork, "id_placework = ?", request.PlaceWork.ID_Placework).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Место работы не найдено"})
-		logging.WriteLog("Место работы не найдено")
+		logging.WriteLog(logging.ERROR, "Место работы не найдено")
 		return
 	}
 
@@ -202,14 +202,14 @@ func UpdateListenerData(ctx *gin.Context) {
 		return
 	}
 
-	logging.WriteLog("Место работы - ", request.PlaceWork.ID_Placework, "- изменёно")
+	logging.WriteLog(logging.DEBUG, "Место работы - ", request.PlaceWork.ID_Placework, "- изменёно")
 
 	//RegAddres
 	var existsRegAddress models.RegistrationAddress
 
 	if err := database.DB.First(&existsRegAddress, "id_regaddress = ?", request.RegistrationAddress.ID_RegAddress).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Адрес регистрации не найден"})
-		logging.WriteLog("Адрес регистрации не найден")
+		logging.WriteLog(logging.ERROR, "Адрес регистрации не найден")
 		return
 	}
 
@@ -227,21 +227,21 @@ func UpdateListenerData(ctx *gin.Context) {
 		return
 	}
 
-	logging.WriteLog("Адрес работы - ", request.RegistrationAddress.ID_RegAddress, "- изменён")
+	logging.WriteLog(logging.DEBUG, "Адрес работы - ", request.RegistrationAddress.ID_RegAddress, "- изменён")
 
 	//ListenerEducation
 	var existsEducationListener models.EducationListener
 
 	if err := database.DB.First(&existsEducationListener, "id_educationlistener = ?", request.EducationListener.ID_EducationListener).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Образование не найдено"})
-		logging.WriteLog("Образование работы не найдено")
+		logging.WriteLog(logging.ERROR, "Образование работы не найдено")
 		return
 	}
 
 	var levelEducation models.LevelEducation
 
 	if err := database.DB.First(&levelEducation, "education = ?", request.EducationListener.LevelEducation).Error; err != nil {
-		logging.WriteLog("Уровень образования не найден", request.EducationListener.LevelEducation)
+		logging.WriteLog(logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
 		logging.TxDenied(ctx, err)
 		return
 	}
@@ -266,5 +266,5 @@ func UpdateListenerData(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message:": "записи успешно изменены"})
-	logging.WriteLog("Образование - ", request.EducationListener.ID_EducationListener, "- изменёно")
+	logging.WriteLog(logging.DEBUG, "Образование - ", request.EducationListener.ID_EducationListener, "- изменёно")
 }

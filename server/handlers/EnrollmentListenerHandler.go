@@ -15,14 +15,14 @@ func GetProgramInfo(ctx *gin.Context) {
 	id, err := uuid.Parse(idParam)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка Parse id"})
-		logging.WriteLog("Ошибка Parse id")
+		logging.WriteLog(logging.ERROR, "Ошибка Parse id")
 		return
 	}
 
 	var listener models.Listener
 	if err := database.DB.First(&listener, "id_listener = ?", id).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
-		logging.WriteLog("Пользователь не найден")
+		logging.WriteLog(logging.ERROR, "Пользователь не найден")
 		return
 	}
 
@@ -32,14 +32,14 @@ func GetProgramInfo(ctx *gin.Context) {
 	querryDivisionEducation := database.DB.Find(&divisionseducation)
 	if querryDivisionEducation.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryDivisionEducation.Error, Message: "Подразделения не найдены"})
-		logging.WriteLog("Подразделения не найдены")
+		logging.WriteLog(logging.ERROR, "Подразделения не найдены")
 		return
 	}
 
 	querryEducationtype := database.DB.Find(&educationtypes)
 	if querryEducationtype.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryEducationtype.Error, Message: "Типы обучения не найдены"})
-		logging.WriteLog("Типы обучения не найдены")
+		logging.WriteLog(logging.ERROR, "Типы обучения не найдены")
 		return
 	}
 
@@ -55,7 +55,7 @@ func SelectProgramEducation(ctx *gin.Context) {
 	err := ctx.BindJSON(&divions)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка привязки подразделения"})
-		logging.WriteLog("Ошибка привязки подразделения: ", err)
+		logging.WriteLog(logging.ERROR, "Ошибка привязки подразделения: ", err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func SelectProgramEducation(ctx *gin.Context) {
 	querryProgramEducation := database.DB.Where("id_divisionseducation = ?", divions.ID_DivisionsEducation).Find(&programeducation)
 	if querryProgramEducation.Error != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryProgramEducation.Error, Message: "Програмы обучения не найдены"})
-		logging.WriteLog("Програмы обучения не найдены")
+		logging.WriteLog(logging.ERROR, "Програмы обучения не найдены")
 		return
 	}
 

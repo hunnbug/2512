@@ -26,7 +26,7 @@ func DeleteRows(ctx *gin.Context, tx *gorm.DB, model interface{}, idString strin
 func ErrorDelete(ctx *gin.Context, err error, tx *gorm.DB, idString string) {
 	tx.Rollback()
 	ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: idString + "не найден"})
-	logging.WriteLog(idString, "не найден")
+	logging.WriteLog(logging.ERROR, idString, "не найден")
 	logging.TxDenied(err)
 	return
 }

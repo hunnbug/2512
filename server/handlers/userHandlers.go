@@ -26,7 +26,7 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		logging.WriteLog("произошла ошибка при парсинге логина и пароля: ", err)
+		logging.WriteLog(logging.ERROR, "произошла ошибка при парсинге логина и пароля: ", err)
 
 	}
 
@@ -38,7 +38,7 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		logging.WriteLog("неверный логин: ", err)
+		logging.WriteLog(logging.ERROR, "неверный логин: ", err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный логин!"})
 
@@ -57,7 +57,7 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		logging.WriteLog("пароль не совпадает с хешем")
+		logging.WriteLog(logging.ERROR, "пароль не совпадает с хешем")
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "неверный пароль!"})
 
@@ -75,7 +75,7 @@ func LoginHandler(ctx *gin.Context) {
 
 	if err != nil {
 
-		logging.WriteLog("ошибка во время создания токена: ", err)
+		logging.WriteLog(logging.ERROR, "ошибка во время создания токена: ", err)
 
 		ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{Err: err, Message: "невозможно создать токен"})
 
@@ -86,7 +86,7 @@ func LoginHandler(ctx *gin.Context) {
 		Token string
 	}
 
-	logging.WriteLog("Авторизация пользователя", token[0:38])
+	logging.WriteLog(logging.DEBUG, "Авторизация пользователя", token[0:38])
 
 	ctx.JSON(200, responseToken{Token: token})
 }

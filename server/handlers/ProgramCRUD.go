@@ -19,7 +19,7 @@ func CreateProgram(ctx *gin.Context) {
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		logging.WriteLog("Транзакция не создана")
+		logging.WriteLog(logging.ERROR, "Транзакция не создана")
 		return
 	}
 
