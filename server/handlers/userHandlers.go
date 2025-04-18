@@ -15,9 +15,6 @@ import (
 
 func LoginHandler(ctx *gin.Context) {
 
-	//
-	//объявляем структуру, в объект которой будут парситься данные о логине и пароле с фронта
-	//
 	type loggedUser struct {
 		Username string
 		Password string
@@ -33,16 +30,10 @@ func LoginHandler(ctx *gin.Context) {
 
 	}
 
-	//
-	//объект, в который будет пароситься найденный пользователь из БД
-	//
 	var user models.User
 
 	tx := database.DB.Begin()
 
-	//
-	//запрос поиска записи в БД по логину, парсится в user, возвращается ошибка и проверяется
-	//
 	err = tx.First(&user, "username = ?", _loggedUser.Username).Error
 
 	if err != nil {
@@ -73,22 +64,13 @@ func LoginHandler(ctx *gin.Context) {
 		return
 	}
 
-	//
-	//создаем пейлод для жвт токена
-	//
 	payload := jwt.MapClaims{
 		"username": user.Username,
 		"password": user.Password,
 	}
 
-	//
-	//создаем токен
-	//
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 
-	//
-	//подписываем токен
-	//
 	token, err := t.SignedString(environment.Env.JwtToken)
 
 	if err != nil {
@@ -100,9 +82,6 @@ func LoginHandler(ctx *gin.Context) {
 		return
 	}
 
-	//
-	//объявляем структуру для того, чтоб отдавать токен на фронт
-	//
 	type responseToken struct {
 		Token string
 	}
