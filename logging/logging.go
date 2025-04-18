@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func WriteLog(v ...any) error {
+func WriteLog(v ...any) {
 
 	file, err := os.OpenFile("logs.log", os.O_APPEND|os.O_CREATE, 0644)
 
@@ -16,15 +16,21 @@ func WriteLog(v ...any) error {
 
 	defer file.Close()
 
-	log.SetOutput(file)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
+	writer := io.MultiWriter(os.Stdout, file)
+
+	log.SetOutput(writer)
 
 	log.Println(v...)
 
-	log.SetOutput(io.Writer(os.Stdout))
+	// log.SetOutput(file)
 
-	log.Println(v...)
+	// log.Println(v...)
 
-	return nil
+	// log.SetOutput(io.Writer(os.Stdout))
+
+	// log.Println(v...)
 
 }
 

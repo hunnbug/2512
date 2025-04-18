@@ -35,7 +35,6 @@ func Start() {
 
 	//AboutListener
 	r.GET("/listeners/:id/about", handlers.AboutListener)
-	r.PUT("/listeners/:id/about/update/data", handlers.UpdateListenerData)
 
 	//Enrollments
 	r.GET("/listeners/:id/about/enrollments", handlers.GetProgramInfo)
