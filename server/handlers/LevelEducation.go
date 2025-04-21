@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"main/database"
 	"main/models"
 	"net/http"
@@ -18,6 +19,8 @@ func GetAllLevelsEducation(ctx *gin.Context) {
 
 		return
 	}
+
+	fmt.Println(fullLevelEducation)
 
 	ctx.JSON(200, gin.H{
 		"LevelsEducation": fullLevelEducation,

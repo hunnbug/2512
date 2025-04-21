@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"main/database"
 	"main/logging"
 	"main/models"
@@ -15,19 +16,22 @@ import (
 // создание слушателя
 func CreateListener(ctx *gin.Context) {
 
-	logging.WriteLog(logging.ERROR, logging.DEBUG, "----------------------------------------------")
-	logging.WriteLog(logging.ERROR, logging.DEBUG, "запрос на создание слушателя")
+	logging.WriteLog(logging.DEBUG, "----------------------------------------------")
+	logging.WriteLog(logging.DEBUG, "запрос на создание слушателя")
 
 	var request models.CreateListenerRequest
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка сервера!"})
+
+		logging.WriteLog(logging.ERROR, "Ошибка привязки данных к структуре")
+		fmt.Println(err)
 		return
 	}
 
 	tx := database.DB.Begin()
 	if tx.Error != nil {
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Транзакция не создана")
+		logging.WriteLog(logging.ERROR, "Транзакция не создана")
 		return
 	}
 
@@ -45,14 +49,14 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&passport).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Паспорт не создан", passport.ID_Passport)
+		logging.WriteLog(logging.ERROR, "Паспорт не создан", passport.ID_Passport)
 
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при создании паспорта!"})
 		return
 	}
-	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создан паспорт", passport.ID_Passport)
+	logging.WriteLog(logging.DEBUG, "Создан паспорт", passport.ID_Passport)
 
 	registrationAddress := models.RegistrationAddress{
 		ID_regAddress: uuid.New(),
@@ -67,14 +71,14 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&registrationAddress).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Адрес не создан", registrationAddress.ID_regAddress)
+		logging.WriteLog(logging.ERROR, "Адрес не создан", registrationAddress.ID_regAddress)
 
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении адреса пользователя!"})
 		return
 	}
-	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
+	logging.WriteLog(logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
 
 	// var levelEducation models.LevelEducation
 	// if err := database.DB.First(&levelEducation, "Education = ?", request.EducationListener.LevelEducation).Error; err != nil {
@@ -99,13 +103,13 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&educationListener).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Образование слушателя не создано", educationListener.ID_EducationListener)
+		logging.WriteLog(logging.ERROR, "Образование слушателя не создано", educationListener.ID_EducationListener)
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации об образовании слушателя!"})
 		return
 	}
-	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
+	logging.WriteLog(logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
 
 	placeWork := models.PlaceWork{
 		ID_PlaceWork:       uuid.New(),
@@ -117,13 +121,13 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&placeWork).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Место работы не создано", placeWork.ID_PlaceWork)
+		logging.WriteLog(logging.ERROR, "Место работы не создано", placeWork.ID_PlaceWork)
 		logging.TxDenied(ctx, err)
 
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении места работы слушателя!"})
 		return
 	}
-	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создано место работы слушателя", placeWork.ID_PlaceWork)
+	logging.WriteLog(logging.DEBUG, "Создано место работы слушателя", placeWork.ID_PlaceWork)
 
 	listener := models.Listener{
 		ID_Listener:          uuid.New(),
@@ -142,7 +146,7 @@ func CreateListener(ctx *gin.Context) {
 
 	if err := tx.Create(&listener).Error; err != nil {
 		tx.Rollback()
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Слушатель не создан", listener.ID_Listener)
+		logging.WriteLog(logging.ERROR, "Слушатель не создан", listener.ID_Listener)
 
 		logging.TxDenied(ctx, listener.ID_Listener)
 
@@ -203,7 +207,7 @@ func DeleteListener(ctx *gin.Context) {
 	}
 }
 
-func ReadListener(ctx *gin.Context) {
+func ReadListeners(ctx *gin.Context) {
 
 	const LIMIT_COUNT = 10
 

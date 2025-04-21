@@ -31,7 +31,7 @@ func Start() {
 	r.POST("/listeners/create", handlers.CreateListener)
 	r.PUT("/listeners/:id", handlers.UpdateListenerData)
 	r.DELETE("/listeners/:id", handlers.DeleteListener)
-	r.POST("/listeners/", handlers.ReadListener)
+	r.POST("/listeners/", handlers.ReadListeners)
 
 	//AboutListener
 	r.GET("/listeners/:id/about", handlers.AboutListener)

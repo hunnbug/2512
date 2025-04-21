@@ -147,15 +147,17 @@ func AboutListener(ctx *gin.Context) {
 
 func UpdateListenerData(ctx *gin.Context) {
 	var request models.UpdateListenerRequest
+
 	// проверка на существовании записи в отдельной переменной чтобы избежать перезаписывания модели
 	var existsPassport models.Passport
+
 	tx := database.DB.Begin()
 	if tx.Error != nil {
 		logging.WriteLog(logging.ERROR, "Транзакция не создана")
 		logging.TxDenied(ctx, tx.Error)
 	}
 
-	if err := ctx.ShouldBindJSON(&request); err != nil {
+	if err := ctx.Bind(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка обработки запроса!"})
 		logging.WriteLog(logging.ERROR, "Ошибка привязки данных к структуре")
 		return
