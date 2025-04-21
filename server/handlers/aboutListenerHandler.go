@@ -31,7 +31,7 @@ func AboutListener(ctx *gin.Context) {
 		logging.WriteLog(logging.ERROR, "Пользователь не найден")
 		return
 	}
-	logging.WriteLog(logging.DEBUG, "Авторизация пользователя")
+	logging.WriteLog(logging.DEBUG, "Пользователь найден")
 
 	logging.CheckLogError(err)
 	responseUUID := models.ListenerIDDTO{
