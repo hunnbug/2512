@@ -14,7 +14,7 @@ func GetAllLevelsEducation(ctx *gin.Context) {
 
 	if querryLevelEducation.Error != nil {
 
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryLevelEducation.Error, Message: "Слушатели не найдены"})
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryLevelEducation.Error, Message: "Уровни обучения не найдены"})
 
 		return
 	}

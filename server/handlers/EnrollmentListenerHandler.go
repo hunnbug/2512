@@ -4,18 +4,15 @@ import (
 	"main/database"
 	"main/logging"
 	"main/models"
+	"main/tools"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func GetProgramInfo(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	id, err := uuid.Parse(idParam)
+	id, err := tools.CheckParamID(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка Parse id"})
-		logging.WriteLog(logging.ERROR, "Ошибка Parse id")
 		return
 	}
 
@@ -85,4 +82,33 @@ func SelectProgramEducation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"ProgramEducation": programDTO,
 	})
+}
+
+func RecordListenerOnProgram(ctx *gin.Context) {
+	_, err := tools.CheckParamID(ctx)
+	if err != nil {
+		return
+	}
+	var request models.EnrollmentsRequests
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка сервера!"})
+		return
+	}
+
+	enrollmetns := models.ListenerProgramEducation{
+		ID_Listener:         request.ID_Listener,
+		ID_ProgramEducation: request.ID_Program,
+		StartDate:           request.StartDate,
+		EndDate:             request.EndDate,
+	}
+
+	if err := database.DB.Create(&enrollmetns).Error; err != nil {
+		logging.WriteLog(logging.ERROR, logging.ERROR, "Слушатель не записан на курс", enrollmetns.ID_Listener, "-", enrollmetns.ID_ProgramEducation)
+		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при записи слушателя на курс!"})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, nil)
+
 }

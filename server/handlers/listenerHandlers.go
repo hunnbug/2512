@@ -76,14 +76,14 @@ func CreateListener(ctx *gin.Context) {
 	}
 	logging.WriteLog(logging.ERROR, logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
 
-	var levelEducation models.LevelEducation
-	if err := database.DB.First(&levelEducation, "Education = ?", request.EducationListener.LevelEducation).Error; err != nil {
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
-		logging.TxDenied(ctx, err)
+	// var levelEducation models.LevelEducation
+	// if err := database.DB.First(&levelEducation, "Education = ?", request.EducationListener.LevelEducation).Error; err != nil {
+	// 	logging.WriteLog(logging.ERROR, logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
+	// 	logging.TxDenied(ctx, err)
 
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении уровня образования слушателя!"})
-		return
-	}
+	// 	ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении уровня образования слушателя!"})
+	// 	return
+	// }
 
 	educationListener := models.EducationListener{
 		ID_EducationListener:   uuid.New(),
@@ -94,7 +94,7 @@ func CreateListener(ctx *gin.Context) {
 		Region:                 request.EducationListener.Region,
 		EducationalInstitution: request.EducationListener.EducationalInstitution,
 		Speciality:             request.EducationListener.Speciality,
-		ID_LevelEducation:      levelEducation.ID_LevelEducation,
+		ID_LevelEducation:      request.EducationListener.ID_LevelEducation,
 	}
 
 	if err := tx.Create(&educationListener).Error; err != nil {
