@@ -135,6 +135,8 @@ func AboutListener(ctx *gin.Context) {
 		"responseuuid":      responseUUID,
 	})
 
+	logging.WriteLog(logging.DEBUG, "Получен пользователь - ", listener.ID_Listener)
+
 }
 
 //

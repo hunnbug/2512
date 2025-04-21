@@ -1,5 +1,7 @@
 package models
 
+import "github.com/google/uuid"
+
 type PassportRequest struct {
 	PlaceBirth    string `json:"placeBirth"`
 	Citizenship   string `json:"citizenship"`
@@ -26,14 +28,14 @@ type ListenerEducationRequest struct {
 }
 
 type EducationListenerRequest struct {
-	DiplomSeria            int    `json:"diplomSeria"`
-	DiplomNumber           int    `json:"diplomNumber"`
-	DateGiven              string `json:"dateGiven"`
-	City                   string `json:"city"`
-	Region                 string `json:"region"`
-	EducationalInstitution string `json:"educationalInstitution"`
-	Speciality             string `json:"speciality"`
-	LevelEducation         string `json:"levelEducation"`
+	DiplomSeria            int       `json:"diplomSeria"`
+	DiplomNumber           int       `json:"diplomNumber"`
+	DateGiven              string    `json:"dateGiven"`
+	City                   string    `json:"city"`
+	Region                 string    `json:"region"`
+	EducationalInstitution string    `json:"educationalInstitution"`
+	Speciality             string    `json:"speciality"`
+	ID_LevelEducation      uuid.UUID `json:"levelEducation"`
 }
 
 type PlaceWorkRequest struct {
@@ -44,14 +46,13 @@ type PlaceWorkRequest struct {
 }
 
 type ProgramEducationRequest struct {
-	NameProfEducation string  `json:"nameProfEducation"`
-	TypeOfEducation   string  `json:"typeOfEducation"`
-	TimeEducation     int     `json:"timeEducation"`
-	Division          string  `json:"division"`
-	IndividualPrice   float32 `json:"individualprice"`
-	GroupPrice        float32 `json:"groupprice"`
-	CampusPrice       float32 `json:"campusprice"`
-	EducationType     string  `json:"educationtype"`
+	NameProfEducation     string    `json:"nameProfEducation"`
+	TimeEducation         int       `json:"timeEducation"`
+	IndividualPrice       float32   `json:"individualprice"`
+	GroupPrice            float32   `json:"groupprice"`
+	CampusPrice           float32   `json:"campusprice"`
+	ID_DivisionsEducation uuid.UUID `json:"id_divisionseducation"`
+	ID_EducationType      uuid.UUID `json:"id_educationtype"`
 }
 
 type CreateListenerRequest struct {
@@ -73,11 +74,11 @@ type DivisionsEducationRequests struct {
 }
 
 type EnrollmentsRequests struct {
-	ID_Listener  string `json:"id_listener"`
-	ID_Program   string `json:"id_program"`
-	StartDate    string `json:"startdate"`
-	EndDate      string `json:"enddate"`
-	PersonalCard string `json:"personalcard"`
+	ID_Listener uuid.UUID `json:"id_listener"`
+	ID_Program  uuid.UUID `json:"id_program"`
+	StartDate   string    `json:"startdate"`
+	EndDate     string    `json:"enddate"`
+	// PersonalCard string    `json:"personalcard"`
 }
 
 //update

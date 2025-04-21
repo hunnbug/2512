@@ -104,13 +104,13 @@ type ProgramEducation struct {
 	ID_ProgramEducation   uuid.UUID          `gorm:"column:id_programeducation;primaryKey"`
 	NameProfEducation     string             `gorm:"column:nameprofeducation"`
 	TimeEducation         int                `gorm:"column:timeeducation"`
-	ID_DivisionsEducation uuid.UUID          `gorm:"column:id_divisionseducation"`
-	Division              DivisionsEducation `gorm:"foreignKey:ID_DivisionsEducation"`
 	IndividualPrice       float32            `gorm:"column:individualprice"`
 	GroupPrice            float32            `gorm:"column:groupprice"`
 	CampusPrice           float32            `gorm:"column:campusprice"`
 	ID_EducationType      uuid.UUID          `gorm:"column:id_educationtype"`
 	EducationType         EducationTypes     `gorm:"foreignKey:ID_EducationType"`
+	ID_DivisionsEducation uuid.UUID          `gorm:"column:id_divisionseducation"`
+	Division              DivisionsEducation `gorm:"foreignKey:ID_DivisionsEducation"`
 }
 
 func (ProgramEducation) TableName() string {

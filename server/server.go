@@ -39,9 +39,22 @@ func Start() {
 	//Enrollments
 	r.GET("/listeners/:id/about/enrollments", handlers.GetProgramInfo)
 	r.GET("/listeners/:id/about/enrollments/program", handlers.SelectProgramEducation)
+	r.POST("listeners/:id/about/enrollments/program/record", handlers.RecordListenerOnProgram)
 
-	//
+	//LevelEducation
 	r.GET("/levelEducation", handlers.GetAllLevelsEducation)
+
+	//DivisionsEducation
+	r.GET("/divisionsEducation", handlers.GetAllDivisions)
+
+	//Educationtype
+	r.GET("/educationtypes", handlers.GetAllEducationTypes)
+
+	//ProgramEducation
+	r.POST("/programeducation/create", handlers.CreateProgram)
+	r.DELETE("/programeducation/:id/delete", handlers.DeleteProgram)
+	r.PUT("/programeducation/:id/update", handlers.UpdateProgram)
+	r.POST("/programeducation", handlers.ReadProgram)
 
 	r.Run("localhost:8080")
 
