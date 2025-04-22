@@ -21,6 +21,6 @@ func Init() {
 
 	DEBUG = log.New(writer, "DEBUG\t", log.LstdFlags)
 
-	ERROR = log.New(writer, "ERROR\t", log.LstdFlags|log.Lshortfile)
+	ERROR = log.New(writer, "ERROR\t", log.LstdFlags)
 
 }

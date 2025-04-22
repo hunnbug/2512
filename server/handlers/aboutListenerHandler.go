@@ -244,7 +244,7 @@ func UpdateListenerData(ctx *gin.Context) {
 
 	var levelEducation models.LevelEducation
 
-	if err := database.DB.First(&levelEducation, "education = ?", request.EducationListener.LevelEducation).Error; err != nil {
+	if err := database.DB.First(&levelEducation, "id_leveleducation = ?", request.EducationListener.LevelEducation).Error; err != nil {
 		logging.WriteLog(logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
 		logging.TxDenied(ctx, err)
 		return
