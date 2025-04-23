@@ -80,54 +80,51 @@ func CreateListener(ctx *gin.Context) {
 	}
 	logging.WriteLog(logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
 
-	// var levelEducation models.LevelEducation
-	// if err := database.DB.First(&levelEducation, "Education = ?", request.EducationListener.LevelEducation).Error; err != nil {
-	// 	logging.WriteLog(logging.ERROR, logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
-	// 	logging.TxDenied(ctx, err)
+	var ID_EducationListener *uuid.UUID = nil
+	if request.EducationListener != (models.EducationListenerRequest{}) {
+		educationListener := models.EducationListener{
+			ID_EducationListener:   uuid.New(),
+			DiplomSeria:            request.EducationListener.DiplomSeria,
+			DiplomNumber:           request.EducationListener.DiplomNumber,
+			DateGiven:              request.EducationListener.DateGiven,
+			City:                   request.EducationListener.City,
+			Region:                 request.EducationListener.Region,
+			EducationalInstitution: request.EducationListener.EducationalInstitution,
+			Speciality:             request.EducationListener.Speciality,
+			ID_LevelEducation:      request.EducationListener.ID_LevelEducation,
+		}
 
-	// 	ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении уровня образования слушателя!"})
-	// 	return
-	// }
+		if err := tx.Create(&educationListener).Error; err != nil {
+			tx.Rollback()
+			logging.WriteLog(logging.ERROR, "Образование слушателя не создано", educationListener.ID_EducationListener)
+			logging.TxDenied(ctx, err)
 
-	educationListener := models.EducationListener{
-		ID_EducationListener:   uuid.New(),
-		DiplomSeria:            request.EducationListener.DiplomSeria,
-		DiplomNumber:           request.EducationListener.DiplomNumber,
-		DateGiven:              request.EducationListener.DateGiven,
-		City:                   request.EducationListener.City,
-		Region:                 request.EducationListener.Region,
-		EducationalInstitution: request.EducationListener.EducationalInstitution,
-		Speciality:             request.EducationListener.Speciality,
-		ID_LevelEducation:      request.EducationListener.ID_LevelEducation,
+			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации об образовании слушателя!"})
+			return
+		}
+		logging.WriteLog(logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
 	}
 
-	if err := tx.Create(&educationListener).Error; err != nil {
-		tx.Rollback()
-		logging.WriteLog(logging.ERROR, "Образование слушателя не создано", educationListener.ID_EducationListener)
-		logging.TxDenied(ctx, err)
+	var ID_PlaceWork *uuid.UUID = nil
+	if request.PlaceWork != (models.PlaceWorkRequest{}) {
+		placeWork := models.PlaceWork{
+			ID_PlaceWork:       uuid.New(),
+			NameCompany:        request.PlaceWork.NameCompany,
+			JobTitle:           request.PlaceWork.JobTitle,
+			AllExperience:      request.PlaceWork.AllExperience,
+			JobTitleExpirience: request.PlaceWork.JobTitleExpirience,
+		}
 
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении информации об образовании слушателя!"})
-		return
+		if err := tx.Create(&placeWork).Error; err != nil {
+			tx.Rollback()
+			logging.WriteLog(logging.ERROR, "Место работы не создано", placeWork.ID_PlaceWork)
+			logging.TxDenied(ctx, err)
+
+			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении места работы слушателя!"})
+			return
+		}
+		logging.WriteLog(logging.DEBUG, "Создано место работы слушателя", placeWork.ID_PlaceWork)
 	}
-	logging.WriteLog(logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
-
-	placeWork := models.PlaceWork{
-		ID_PlaceWork:       uuid.New(),
-		NameCompany:        request.PlaceWork.NameCompany,
-		JobTitle:           request.PlaceWork.JobTitle,
-		AllExperience:      request.PlaceWork.AllExperience,
-		JobTitleExpirience: request.PlaceWork.JobTitleExpirience,
-	}
-
-	if err := tx.Create(&placeWork).Error; err != nil {
-		tx.Rollback()
-		logging.WriteLog(logging.ERROR, "Место работы не создано", placeWork.ID_PlaceWork)
-		logging.TxDenied(ctx, err)
-
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при добавлении места работы слушателя!"})
-		return
-	}
-	logging.WriteLog(logging.DEBUG, "Создано место работы слушателя", placeWork.ID_PlaceWork)
 
 	listener := models.Listener{
 		ID_Listener:          uuid.New(),
@@ -140,8 +137,8 @@ func CreateListener(ctx *gin.Context) {
 		Email:                request.Email,
 		ID_passport:          passport.ID_Passport,
 		ID_regAddress:        registrationAddress.ID_regAddress,
-		ID_EducationListener: educationListener.ID_EducationListener,
-		ID_PlaceWork:         placeWork.ID_PlaceWork,
+		ID_EducationListener: ID_EducationListener,
+		ID_PlaceWork:         ID_PlaceWork,
 	}
 
 	if err := tx.Create(&listener).Error; err != nil {
@@ -190,9 +187,13 @@ func DeleteListener(ctx *gin.Context) {
 
 	tools.DeleteRows(ctx, tx, &models.RegistrationAddress{}, "id_regaddress = ?", listener.ID_regAddress)
 
-	tools.DeleteRows(ctx, tx, &models.EducationListener{}, "id_educationlistener = ?", listener.ID_EducationListener)
+	if listener.ID_EducationListener != nil {
+		tools.DeleteRows(ctx, tx, &models.EducationListener{}, "id_educationlistener = ?", *listener.ID_EducationListener)
+	}
 
-	tools.DeleteRows(ctx, tx, &models.PlaceWork{}, "id_placework = ?", listener.ID_PlaceWork)
+	if listener.ID_PlaceWork != nil {
+		tools.DeleteRows(ctx, tx, &models.PlaceWork{}, "id_placework = ?", *listener.ID_PlaceWork)
+	}
 
 	if err := tx.Commit().Error; err != nil {
 		logging.TxDenied("Удаление не произведено")

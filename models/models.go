@@ -130,9 +130,9 @@ type Listener struct {
 	Passport             Passport            `gorm:"foreignKey:ID_passport"`
 	ID_regAddress        uuid.UUID           `gorm:"column:id_regaddress"`
 	RegistrationAddress  RegistrationAddress `gorm:"foreignKey:ID_regAddress"`
-	ID_EducationListener uuid.UUID           `gorm:"column:id_educationlistener"`
+	ID_EducationListener *uuid.UUID          `gorm:"column:id_educationlistener"`
 	EducationListener    EducationListener   `gorm:"foreignKey:ID_EducationListener"`
-	ID_PlaceWork         uuid.UUID           `gorm:"column:id_placework"`
+	ID_PlaceWork         *uuid.UUID          `gorm:"column:id_placework"`
 	PlaceWork            PlaceWork           `gorm:"foreignKey:ID_PlaceWork"`
 }
 

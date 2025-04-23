@@ -5,8 +5,8 @@ import "github.com/google/uuid"
 type ListenerIDDTO struct {
 	ID_Passport          uuid.UUID
 	ID_RegAddress        uuid.UUID
-	ID_EducationListener uuid.UUID
-	ID_PlaceWork         uuid.UUID
+	ID_EducationListener *uuid.UUID
+	ID_PlaceWork         *uuid.UUID
 }
 
 type ListenerDTO struct {
