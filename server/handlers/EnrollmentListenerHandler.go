@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"main/database"
 	"main/logging"
 	"main/models"
@@ -9,42 +10,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
-func GetProgramInfo(ctx *gin.Context) {
-	id, err := tools.CheckParamID(ctx)
-	if err != nil {
-		return
-	}
-
-	var listener models.Listener
-	if err := database.DB.First(&listener, "id_listener = ?", id).Error; err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Пользователь не найден"})
-		logging.WriteLog(logging.ERROR, "Пользователь не найден")
-		return
-	}
-
-	var divisionseducation []models.DivisionsEducation
-	var educationtypes []models.EducationTypes
-
-	querryDivisionEducation := database.DB.Find(&divisionseducation)
-	if querryDivisionEducation.Error != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryDivisionEducation.Error, Message: "Подразделения не найдены"})
-		logging.WriteLog(logging.ERROR, "Подразделения не найдены")
-		return
-	}
-
-	querryEducationtype := database.DB.Find(&educationtypes)
-	if querryEducationtype.Error != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querryEducationtype.Error, Message: "Типы обучения не найдены"})
-		logging.WriteLog(logging.ERROR, "Типы обучения не найдены")
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"DivisionEducation": divisionseducation,
-		"EducationTypes":    educationtypes,
-	})
-}
 
 func SelectProgramEducation(ctx *gin.Context) {
 
@@ -85,7 +50,7 @@ func SelectProgramEducation(ctx *gin.Context) {
 }
 
 func RecordListenerOnProgram(ctx *gin.Context) {
-	_, err := tools.CheckParamID(ctx)
+	id, err := tools.CheckParamID(ctx)
 	if err != nil {
 		return
 	}
@@ -103,11 +68,18 @@ func RecordListenerOnProgram(ctx *gin.Context) {
 		EndDate:             request.EndDate,
 	}
 
+	fmt.Println(enrollmetns)
+
 	if err := database.DB.Create(&enrollmetns).Error; err != nil {
 		logging.WriteLog(logging.ERROR, logging.ERROR, "Слушатель не записан на курс", enrollmetns.ID_Listener, "-", enrollmetns.ID_ProgramEducation)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при записи слушателя на курс!"})
 		return
 	}
+
+	dataListener, err := tools.GetAllListenerData(ctx, id)
+	dataEducation, err := tools.FindEducationData(ctx, request.ID_Program)
+
+	tools.CreatePersonalCard(dataListener, dataEducation)
 
 	ctx.JSON(http.StatusCreated, nil)
 

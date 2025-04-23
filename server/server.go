@@ -37,7 +37,6 @@ func Start() {
 	r.GET("/listeners/:id/about", handlers.AboutListener)
 
 	//Enrollments
-	r.GET("/listeners/:id/about/enrollments", handlers.GetProgramInfo)
 	r.GET("/listeners/:id/about/enrollments/program", handlers.SelectProgramEducation)
 	r.POST("listeners/:id/about/enrollments/program/record", handlers.RecordListenerOnProgram)
 
@@ -55,6 +54,9 @@ func Start() {
 	r.DELETE("/programeducation/:id/delete", handlers.DeleteProgram)
 	r.PUT("/programeducation/:id/update", handlers.UpdateProgram)
 	r.POST("/programeducation", handlers.ReadProgram)
+
+	//documents
+	r.POST("listeners/:id/about/enrollments/program/personalcard", handlers.PersonalCard)
 
 	r.Run("localhost:8080")
 

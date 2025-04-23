@@ -72,3 +72,18 @@ type ProgramEducationDTO struct {
 	CampusPrice           float32
 	ID_EducationType      uuid.UUID
 }
+
+type FullListenerDataDTO struct {
+	Listener            ListenerDTO
+	Passport            PassportDTO
+	RegistrationAddress RegistrationAddressDTO
+	EducationListener   EducationListenerDTO
+	PlaceWork           PlaceWorkDTO
+	ResponseUUID        ListenerIDDTO
+}
+
+type EducationData struct {
+	ProgramEducation ProgramEducationDTO
+	Division         DivisionsEducation
+	TypeEducation    EducationTypes
+}
