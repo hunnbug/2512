@@ -277,13 +277,13 @@ func UpdateListenerData(ctx *gin.Context) {
 			return
 		}
 
-		var levelEducation models.LevelEducation
+		// var levelEducation models.LevelEducation
 
-		if err := database.DB.First(&levelEducation, "id_leveleducation = ?", request.EducationListener.LevelEducation).Error; err != nil {
-			logging.WriteLog(logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
-			logging.TxDenied(ctx, err)
-			return
-		}
+		// if err := database.DB.First(&levelEducation, "id_leveleducation = ?", request.EducationListener.LevelEducation).Error; err != nil {
+		// 	logging.WriteLog(logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
+		// 	logging.TxDenied(ctx, err)
+		// 	return
+		// }
 
 		querry = tx.Model(&models.EducationListener{}).Where("id_educationlistener = ?", request.EducationListener.ID_EducationListener).Updates(map[string]interface{}{
 			"diplomseria":            request.EducationListener.DiplomSeria,
@@ -293,7 +293,7 @@ func UpdateListenerData(ctx *gin.Context) {
 			"region":                 request.EducationListener.Region,
 			"educationalinstitution": request.EducationListener.EducationalInstitution,
 			"speciality":             request.EducationListener.Speciality,
-			"id_leveleducation":      levelEducation.ID_LevelEducation,
+			"id_leveleducation":      request.EducationListener.ID_LevelEducation,
 		})
 		if querry.Error != nil {
 			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querry.Error, Message: "Ошибка обновления записи"})

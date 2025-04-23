@@ -29,7 +29,7 @@ func Start() {
 
 	//listeners
 	r.POST("/listeners/create", handlers.CreateListener)
-	r.PUT("/listeners/:id", handlers.UpdateListenerData)
+	r.PUT("/listeners/update/:id", handlers.UpdateListenerData)
 	r.DELETE("/listeners/:id", handlers.DeleteListener)
 	r.POST("/listeners/", handlers.ReadListeners)
 
