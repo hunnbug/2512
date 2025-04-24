@@ -277,14 +277,6 @@ func UpdateListenerData(ctx *gin.Context) {
 			return
 		}
 
-		// var levelEducation models.LevelEducation
-
-		// if err := database.DB.First(&levelEducation, "id_leveleducation = ?", request.EducationListener.LevelEducation).Error; err != nil {
-		// 	logging.WriteLog(logging.ERROR, "Уровень образования не найден", request.EducationListener.LevelEducation)
-		// 	logging.TxDenied(ctx, err)
-		// 	return
-		// }
-
 		querry = tx.Model(&models.EducationListener{}).Where("id_educationlistener = ?", request.EducationListener.ID_EducationListener).Updates(map[string]interface{}{
 			"diplomseria":            request.EducationListener.DiplomSeria,
 			"diplomnumber":           request.EducationListener.DiplomNumber,
