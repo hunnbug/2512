@@ -82,13 +82,14 @@ func CreateListener(ctx *gin.Context) {
 	}
 	logging.WriteLog(logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
 
-	// var ID_EducationListener *uuid.UUID = nil
-
+	var ID_EducationListener *uuid.UUID = nil
 	var educationListener models.EducationListener
 
 	if request.EducationListener != (models.EducationListenerRequest{}) {
+		newID := uuid.New()
+		ID_EducationListener = &newID
 		educationListener = models.EducationListener{
-			ID_EducationListener:   uuid.New(),
+			ID_EducationListener:   *ID_EducationListener,
 			DiplomSeria:            request.EducationListener.DiplomSeria,
 			DiplomNumber:           request.EducationListener.DiplomNumber,
 			DateGiven:              request.EducationListener.DateGiven,
@@ -110,13 +111,15 @@ func CreateListener(ctx *gin.Context) {
 		logging.WriteLog(logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
 	}
 
-	// var ID_PlaceWork *uuid.UUID = nil
+	var ID_PlaceWork *uuid.UUID = nil
 
 	var placeWork models.PlaceWork
 
 	if request.PlaceWork != (models.PlaceWorkRequest{}) {
+		newID := uuid.New()
+		ID_PlaceWork = &newID
 		placeWork = models.PlaceWork{
-			ID_PlaceWork:       uuid.New(),
+			ID_PlaceWork:       *ID_PlaceWork,
 			NameCompany:        request.PlaceWork.NameCompany,
 			JobTitle:           request.PlaceWork.JobTitle,
 			AllExperience:      request.PlaceWork.AllExperience,
@@ -145,8 +148,8 @@ func CreateListener(ctx *gin.Context) {
 		Email:                request.Email,
 		ID_passport:          passport.ID_Passport,
 		ID_regAddress:        registrationAddress.ID_regAddress,
-		ID_EducationListener: &educationListener.ID_EducationListener,
-		ID_PlaceWork:         &placeWork.ID_PlaceWork,
+		ID_EducationListener: ID_EducationListener,
+		ID_PlaceWork:         ID_PlaceWork,
 	}
 
 	if err := tx.Create(&listener).Error; err != nil {
