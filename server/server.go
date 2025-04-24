@@ -56,7 +56,6 @@ func Start() {
 	r.POST("/programeducation", handlers.ReadProgram)
 
 	//documents
-	r.POST("listeners/:id/about/enrollments/program/personalcard", handlers.PersonalCard)
 
 	r.Run("localhost:8080")
 

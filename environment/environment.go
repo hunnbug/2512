@@ -1,7 +1,7 @@
 package environment
 
 import (
-	"fmt"
+	"main/logging"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,6 +12,12 @@ type environment struct {
 	JwtToken           []byte
 }
 
+type s3Environment struct {
+	PublicKey  string
+	PrivateKey string
+	Bucket     string
+}
+
 var Env environment
 
 func InitEnv() {
@@ -19,7 +25,7 @@ func InitEnv() {
 	err := godotenv.Load()
 
 	if err != nil {
-		fmt.Println(err)
+		logging.WriteLog(logging.DEBUG, err)
 	}
 
 	Env = environment{
@@ -27,4 +33,20 @@ func InitEnv() {
 		JwtToken:           []byte(os.Getenv("JWT_KEY")),
 	}
 
+}
+
+var S3 s3Environment
+
+func InitS3Enviroment() {
+	err := godotenv.Load()
+
+	if err != nil {
+		logging.WriteLog(logging.DEBUG, err)
+	}
+
+	S3 = s3Environment{
+		PublicKey:  os.Getenv("S3_PUBLIC"),
+		PrivateKey: os.Getenv("S3_PRIVATE"),
+		Bucket:     os.Getenv("BUCKET"),
+	}
 }

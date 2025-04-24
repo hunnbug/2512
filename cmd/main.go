@@ -13,6 +13,8 @@ func main() {
 
 	environment.InitEnv()
 
+	environment.InitS3Enviroment()
+
 	database.Init()
 
 	server.Start()

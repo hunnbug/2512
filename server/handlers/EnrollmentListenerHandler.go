@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"main/database"
 	"main/logging"
 	"main/models"
@@ -50,7 +49,7 @@ func SelectProgramEducation(ctx *gin.Context) {
 }
 
 func RecordListenerOnProgram(ctx *gin.Context) {
-	id, err := tools.CheckParamID(ctx)
+	_, err := tools.CheckParamID(ctx)
 	if err != nil {
 		return
 	}
@@ -68,18 +67,30 @@ func RecordListenerOnProgram(ctx *gin.Context) {
 		EndDate:             request.EndDate,
 	}
 
-	fmt.Println(enrollmetns)
+	tx := database.DB.Begin()
+	if tx.Error != nil {
+		logging.WriteLog(logging.ERROR, "Транзакция не создана")
+		return
+	}
 
-	if err := database.DB.Create(&enrollmetns).Error; err != nil {
+	if err := tx.Create(&enrollmetns).Error; err != nil {
 		logging.WriteLog(logging.ERROR, logging.ERROR, "Слушатель не записан на курс", enrollmetns.ID_Listener, "-", enrollmetns.ID_ProgramEducation)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при записи слушателя на курс!"})
 		return
 	}
 
-	dataListener, err := tools.GetAllListenerData(ctx, id)
+	dataListener, err := tools.GetAllListenerData(ctx, enrollmetns.ID_Listener)
 	dataEducation, err := tools.FindEducationData(ctx, request.ID_Program)
 
-	tools.CreatePersonalCard(dataListener, dataEducation)
+	err = tools.CreatePersonalCard(dataListener, dataEducation)
+	if err != nil {
+		tx.Rollback()
+		logging.WriteLog(logging.ERROR, err, "Слушатель не записан на курс")
+		return
+	}
+
+	tx.Commit()
+	logging.WriteLog(logging.DEBUG, err, "Слушатель", enrollmetns.ID_Listener, "записан на курс")
 
 	ctx.JSON(http.StatusCreated, nil)
 

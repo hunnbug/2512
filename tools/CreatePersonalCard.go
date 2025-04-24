@@ -1,17 +1,20 @@
 package tools
 
 import (
+	"bytes"
 	"fmt"
+	"main/environment"
+	"main/logging"
 	"main/models"
+	"main/storage"
 	"strconv"
 	"time"
 
 	"github.com/nguyenthenguyen/docx"
 )
 
-func CreatePersonalCard(Listenerdata *models.FullListenerDataDTO, EducationData *models.EducationData) {
+func CreatePersonalCard(Listenerdata *models.FullListenerDataDTO, EducationData *models.EducationData) error {
 	templatePath := "./documents/PersonalCard.docx"
-	newFilePath := "./documents/output.docx"
 
 	r, err := docx.ReadDocxFile(templatePath)
 	if err != nil {
@@ -23,12 +26,25 @@ func CreatePersonalCard(Listenerdata *models.FullListenerDataDTO, EducationData 
 
 	replacePlaceholders(doc, Listenerdata, EducationData)
 
-	err = doc.WriteToFile(newFilePath)
+	var buffer bytes.Buffer
+	err = doc.Write(&buffer)
 	if err != nil {
-		panic(fmt.Sprintf("Не удалось сохранить документ: %v", err))
+		logging.WriteLog(logging.ERROR, err)
+		return err
 	}
 
-	fmt.Printf("Документ успешно изменен и сохранен как %s\n", newFilePath)
+	fio := Listenerdata.Listener.SecondName + Listenerdata.Listener.FirstName + Listenerdata.Listener.MiddleName
+	nameFile := "Личное дело - " + fio + ".docx"
+
+	s3client := storage.CreateS3Client()
+	err = S3Load(s3client, environment.S3.Bucket, nameFile, buffer.Bytes())
+	if err != nil {
+		logging.WriteLog(logging.ERROR, err)
+		return err
+	}
+
+	return nil
+
 }
 
 func replacePlaceholders(doc *docx.Docx, Listenerdata *models.FullListenerDataDTO, EducationData *models.EducationData) {
@@ -36,6 +52,7 @@ func replacePlaceholders(doc *docx.Docx, Listenerdata *models.FullListenerDataDT
 	doc.Replace("{{", "", -1)
 	doc.Replace("ProgramEducation", EducationData.ProgramEducation.NameProfEducation, -1)
 	doc.Replace("TypeOfEducation", EducationData.TypeEducation.TypeName, -1)
+	doc.Replace("Hour", strconv.Itoa(EducationData.ProgramEducation.TimeEducation), -1)
 
 	fio := Listenerdata.Listener.SecondName + " " + Listenerdata.Listener.FirstName + " " + Listenerdata.Listener.MiddleName
 
@@ -51,10 +68,10 @@ func replacePlaceholders(doc *docx.Docx, Listenerdata *models.FullListenerDataDT
 	doc.Replace("City", Listenerdata.Passport.PlaceBirth, -1)
 	doc.Replace("Citizenship", Listenerdata.Passport.Citizenship, -1)
 
-	if Listenerdata.Passport.Gender == "мужской" {
-		doc.Replace("мужской ☐", "мужской ☑", -1)
-	} else if Listenerdata.Passport.Gender == "женский" {
-		doc.Replace("женский ☐", "женский ☑", -1)
+	if Listenerdata.Passport.Gender == "Мужской" {
+		doc.Replace("мужской ☐", "мужской ☒", -1)
+	} else if Listenerdata.Passport.Gender == "Женский" {
+		doc.Replace("женский ☐", "женский ☒", -1)
 	}
 
 	doc.Replace("Seria", strconv.Itoa(Listenerdata.Passport.Seria), -1)
@@ -76,18 +93,55 @@ func replacePlaceholders(doc *docx.Docx, Listenerdata *models.FullListenerDataDT
 	doc.Replace("SNILS", Listenerdata.Listener.SNILS, -1)
 	doc.Replace("Phone", Listenerdata.Listener.ContactPhone, -1)
 	doc.Replace("Email", Listenerdata.Listener.Email, -1)
+
 	switch Listenerdata.EducationListener.LevelEducation {
-	case "среднее":
-		doc.Replace("среднее ☐", "среднее ☑", -1)
-	case "среднее профессиональное":
-		doc.Replace("среднее профессиональное ☐", "среднее профессиональное ☑", -1)
-	case "высшее":
-		doc.Replace("высшее ☐", "высшее ☑", -1)
+	case "Среднее":
+		doc.Replace("среднее ☐", "среднее ☒", -1)
+	case "Среднее профессиональное":
+		doc.Replace("среднее профессиональное ☐", "среднее профессиональное ☒", -1)
+	case "Высшее":
+		doc.Replace("высшее ☐", "высшее ☒", -1)
 	}
 
-	// doc.Replace("", , -1)
-	// doc.Replace("", , -1)
-	// doc.Replace("", , -1)
+	if Listenerdata.EducationListener != (models.EducationListenerDTO{}) {
+		doc.Replace("диплом ☐", "диплом ☒", -1)
+		doc.Replace("SDip", strconv.Itoa(Listenerdata.EducationListener.DiplomSeria), -1)
+		doc.Replace("NDip", strconv.Itoa(Listenerdata.EducationListener.DiplomNumber), -1)
+		dmy, err := time.Parse(time.RFC3339, Listenerdata.Listener.DateOfBirth)
+		if err == nil {
+			doc.Replace("DDip", fmt.Sprintf("%02d", dmy.Day()), -1)
+			doc.Replace("MDip", fmt.Sprintf("%02d", dmy.Month()), -1)
+			doc.Replace("YDip", fmt.Sprintf("%d", dmy.Year()), -1)
+		}
+		doc.Replace("CDip", Listenerdata.EducationListener.City, -1)
+		doc.Replace("RDip", Listenerdata.EducationListener.Region, -1)
+		doc.Replace("WhoDip", Listenerdata.EducationListener.EducationalInstitution, -1)
+		doc.Replace("Speciality", Listenerdata.EducationListener.Speciality, -1)
+	} else {
+		doc.Replace("SDip", "_______", -1)
+		doc.Replace("NDip", "_______", -1)
+		doc.Replace("DDip", "_______", -1)
+		doc.Replace("MDip", "_______", -1)
+		doc.Replace("YDip", "_______", -1)
 
-	// doc.Replace("среднее ☐", "мужской ☒", -1)
+		doc.Replace("CDip", "_______", -1)
+		doc.Replace("RDip", "_______", -1)
+		doc.Replace("WhoDip", "_______", -1)
+		doc.Replace("Speciality", "_______", -1)
+	}
+
+	if Listenerdata.PlaceWork != (models.PlaceWorkDTO{}) {
+		doc.Replace("PlaceWork", Listenerdata.PlaceWork.NameCompany, -1)
+		doc.Replace("Post", Listenerdata.PlaceWork.JobTitle, -1)
+		doc.Replace("AllP", strconv.Itoa(Listenerdata.PlaceWork.AllExperience), -1)
+		doc.Replace("OnP", strconv.Itoa(Listenerdata.PlaceWork.JobTitleExpirience), -1)
+	} else {
+		doc.Replace("PlaceWork", "_______", -1)
+		doc.Replace("Post", "_______", -1)
+		doc.Replace("AllP", "_______", -1)
+		doc.Replace("OnP", "_______", -1)
+	}
+
+	doc.Replace("Division", EducationData.Division.Divisions, -1)
+
 }
