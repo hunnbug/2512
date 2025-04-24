@@ -96,7 +96,7 @@ func GetAllListenerData(ctx *gin.Context, id uuid.UUID) (*models.FullListenerDat
 	}
 
 	var leveleducation models.LevelEducation
-	if err := database.DB.Find(&leveleducation, "id_leveleducation = ?", educationListener.ID_LevelEducation).Error; err != nil {
+	if err := database.DB.Find(&leveleducation, "education = ?", educationListener.LevelEducation).Error; err != nil {
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Уровень образования не найден"})
 		logging.WriteLog(logging.ERROR, "Уровень образования не найден")
 		return nil, err

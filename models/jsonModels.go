@@ -28,14 +28,14 @@ type ListenerEducationRequest struct {
 }
 
 type EducationListenerRequest struct {
-	DiplomSeria            int       `json:"diplomSeria"`
-	DiplomNumber           int       `json:"diplomNumber"`
-	DateGiven              string    `json:"dateGiven"`
-	City                   string    `json:"city"`
-	Region                 string    `json:"region"`
-	EducationalInstitution string    `json:"educationalInstitution"`
-	Speciality             string    `json:"speciality"`
-	ID_LevelEducation      uuid.UUID `json:"levelEducation"`
+	DiplomSeria            int    `json:"diplomSeria"`
+	DiplomNumber           int    `json:"diplomNumber"`
+	DateGiven              string `json:"dateGiven"`
+	City                   string `json:"city"`
+	Region                 string `json:"region"`
+	EducationalInstitution string `json:"educationalInstitution"`
+	Speciality             string `json:"speciality"`
+	LevelEducation         string `json:"levelEducation"`
 }
 
 type PlaceWorkRequest struct {
@@ -84,15 +84,15 @@ type EnrollmentsRequests struct {
 //update
 
 type EducationListenerUpdateRequest struct {
-	ID_EducationListener   string    `json:"id_educationlistener"`
-	DiplomSeria            int       `json:"diplomSeria"`
-	DiplomNumber           int       `json:"diplomNumber"`
-	DateGiven              string    `json:"dateGiven"`
-	City                   string    `json:"city"`
-	Region                 string    `json:"region"`
-	EducationalInstitution string    `json:"educationalInstitution"`
-	Speciality             string    `json:"speciality"`
-	ID_LevelEducation      uuid.UUID `json:"id_levelEducation"`
+	ID_EducationListener   string `json:"id_educationlistener"`
+	DiplomSeria            int    `json:"diplomSeria"`
+	DiplomNumber           int    `json:"diplomNumber"`
+	DateGiven              string `json:"dateGiven"`
+	City                   string `json:"city"`
+	Region                 string `json:"region"`
+	EducationalInstitution string `json:"educationalInstitution"`
+	Speciality             string `json:"speciality"`
+	LevelEducation         string `json:"levelEducation"`
 }
 
 type PlaceWorkUpdateRequest struct {

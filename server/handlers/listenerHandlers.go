@@ -29,6 +29,8 @@ func CreateListener(ctx *gin.Context) {
 		return
 	}
 
+	fmt.Println(request)
+
 	tx := database.DB.Begin()
 	if tx.Error != nil {
 		logging.WriteLog(logging.ERROR, "Транзакция не создана")
@@ -80,9 +82,12 @@ func CreateListener(ctx *gin.Context) {
 	}
 	logging.WriteLog(logging.DEBUG, "Создан адрес слушателя", registrationAddress.ID_regAddress)
 
-	var ID_EducationListener *uuid.UUID = nil
+	// var ID_EducationListener *uuid.UUID = nil
+
+	var educationListener models.EducationListener
+
 	if request.EducationListener != (models.EducationListenerRequest{}) {
-		educationListener := models.EducationListener{
+		educationListener = models.EducationListener{
 			ID_EducationListener:   uuid.New(),
 			DiplomSeria:            request.EducationListener.DiplomSeria,
 			DiplomNumber:           request.EducationListener.DiplomNumber,
@@ -91,7 +96,7 @@ func CreateListener(ctx *gin.Context) {
 			Region:                 request.EducationListener.Region,
 			EducationalInstitution: request.EducationListener.EducationalInstitution,
 			Speciality:             request.EducationListener.Speciality,
-			ID_LevelEducation:      request.EducationListener.ID_LevelEducation,
+			LevelEducation:         request.EducationListener.LevelEducation,
 		}
 
 		if err := tx.Create(&educationListener).Error; err != nil {
@@ -105,9 +110,12 @@ func CreateListener(ctx *gin.Context) {
 		logging.WriteLog(logging.DEBUG, "Создано образования слушателя", educationListener.ID_EducationListener)
 	}
 
-	var ID_PlaceWork *uuid.UUID = nil
+	// var ID_PlaceWork *uuid.UUID = nil
+
+	var placeWork models.PlaceWork
+
 	if request.PlaceWork != (models.PlaceWorkRequest{}) {
-		placeWork := models.PlaceWork{
+		placeWork = models.PlaceWork{
 			ID_PlaceWork:       uuid.New(),
 			NameCompany:        request.PlaceWork.NameCompany,
 			JobTitle:           request.PlaceWork.JobTitle,
@@ -137,8 +145,8 @@ func CreateListener(ctx *gin.Context) {
 		Email:                request.Email,
 		ID_passport:          passport.ID_Passport,
 		ID_regAddress:        registrationAddress.ID_regAddress,
-		ID_EducationListener: ID_EducationListener,
-		ID_PlaceWork:         ID_PlaceWork,
+		ID_EducationListener: &educationListener.ID_EducationListener,
+		ID_PlaceWork:         &placeWork.ID_PlaceWork,
 	}
 
 	if err := tx.Create(&listener).Error; err != nil {

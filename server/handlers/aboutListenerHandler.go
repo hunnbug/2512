@@ -176,7 +176,7 @@ func UpdateListenerData(ctx *gin.Context) {
 			"region":                 request.EducationListener.Region,
 			"educationalinstitution": request.EducationListener.EducationalInstitution,
 			"speciality":             request.EducationListener.Speciality,
-			"id_leveleducation":      request.EducationListener.ID_LevelEducation,
+			"leveleducation":         request.EducationListener.LevelEducation,
 		})
 		if querry.Error != nil {
 			ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: querry.Error, Message: "Ошибка обновления записи"})
