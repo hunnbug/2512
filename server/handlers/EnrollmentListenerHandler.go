@@ -74,13 +74,26 @@ func RecordListenerOnProgram(ctx *gin.Context) {
 	}
 
 	if err := tx.Create(&enrollmetns).Error; err != nil {
-		logging.WriteLog(logging.ERROR, logging.ERROR, "Слушатель не записан на курс", enrollmetns.ID_Listener, "-", enrollmetns.ID_ProgramEducation)
+		logging.WriteLog(logging.ERROR, "Слушатель не записан на курс", enrollmetns.ID_Listener, "-", enrollmetns.ID_ProgramEducation)
 		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка при записи слушателя на курс!"})
 		return
 	}
 
 	dataListener, err := tools.GetAllListenerData(ctx, enrollmetns.ID_Listener)
+
+	if err != nil {
+
+		logging.WriteLog(logging.ERROR, err, "Не удалось получить данные пользователя")
+
+	}
+
 	dataEducation, err := tools.FindEducationData(ctx, request.ID_Program)
+
+	if err != nil {
+
+		logging.WriteLog(logging.ERROR, err, "Не удалось получить данные об образовании")
+
+	}
 
 	err = tools.CreatePersonalCard(dataListener, dataEducation)
 	if err != nil {
@@ -90,7 +103,7 @@ func RecordListenerOnProgram(ctx *gin.Context) {
 	}
 
 	tx.Commit()
-	logging.WriteLog(logging.DEBUG, err, "Слушатель", enrollmetns.ID_Listener, "записан на курс")
+	logging.WriteLog(logging.DEBUG, "Слушатель", enrollmetns.ID_Listener, "записан на курс")
 
 	ctx.JSON(http.StatusCreated, nil)
 
