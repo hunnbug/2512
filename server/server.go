@@ -42,13 +42,9 @@ func Start() {
 	r.GET("/listeners/:id/about/enrollments/program", enrollmentHandlers.SelectProgramEducation)
 	r.POST("listeners/:id/about/enrollments/program/record", enrollmentHandlers.RecordListenerOnProgram)
 
-	//LevelEducation
+	//education
 	r.GET("/levelEducation", educationHandlers.GetAllLevelsEducation)
-
-	//DivisionsEducation
 	r.GET("/divisionsEducation", educationHandlers.GetAllDivisions)
-
-	//Educationtype
 	r.GET("/educationtypes", educationHandlers.GetAllEducationTypes)
 
 	//ProgramEducation
