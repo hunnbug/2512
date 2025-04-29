@@ -1,4 +1,4 @@
-package handlers
+package educationHandlers
 
 import (
 	"main/database"

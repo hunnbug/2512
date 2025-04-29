@@ -1,4 +1,4 @@
-package handlers
+package listenerHandlers
 
 import (
 	"main/database"
@@ -8,40 +8,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
-func AboutListener(ctx *gin.Context) {
+func UpdateListener(ctx *gin.Context) {
 
-	idParam := ctx.Param("id")
-	id, err := uuid.Parse(idParam)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, models.ErrorResponse{Err: err, Message: "Ошибка Parse id"})
-		logging.WriteLog(logging.ERROR, "Ошибка Parse id")
-		return
-	}
-
-	// поиск слушателя чтобы вытащить id через структуру DTO
-
-	data, err := tools.GetAllListenerData(ctx, id)
-	if err != nil {
-		ctx.JSON(http.StatusForbidden, models.ErrorResponse{Err: err, Message: "Ошибка получения слушателя"})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, data)
-
-	logging.WriteLog(logging.DEBUG, "Получен пользователь - ", id)
-
-}
-
-//
-//	UUID каждой изменяемоей сущности приходит в теле запроса.
-// 	Для оптимизации работы сделаны методы для переиспользования.
-//  Каждый update сделан отдельно для избежания передачи одной гигаструктуры (не всегда же нужно менять всё).
-//
-
-func UpdateListenerData(ctx *gin.Context) {
 	id, err := tools.CheckParamID(ctx)
 	if err != nil {
 		return

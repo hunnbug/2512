@@ -1,4 +1,4 @@
-package handlers
+package loginHandler
 
 import (
 	"main/database"

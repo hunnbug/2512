@@ -6,7 +6,11 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"main/server/handlers"
+	"main/server/handlers/educationHandlers"
+	"main/server/handlers/enrollmentHandlers"
+	"main/server/handlers/listenerHandlers"
+	"main/server/handlers/loginHandler"
+	"main/server/handlers/programHandlers"
 )
 
 func Start() {
@@ -25,35 +29,33 @@ func Start() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	r.POST("/login", handlers.LoginHandler)
+	r.POST("/login", loginHandler.LoginHandler)
 
 	//listeners
-	r.POST("/listeners/create", handlers.CreateListener)
-	r.PUT("/listeners/update/:id", handlers.UpdateListenerData)
-	r.DELETE("/listeners/:id", handlers.DeleteListener)
-	r.POST("/listeners/", handlers.ReadListeners)
-
-	//AboutListener
-	r.GET("/listeners/:id/about", handlers.AboutListener)
+	r.POST("/listeners/create", listenerHandlers.CreateListener)
+	r.PUT("/listeners/update/:id", listenerHandlers.UpdateListener)
+	r.DELETE("/listeners/:id", listenerHandlers.DeleteListener)
+	r.POST("/listeners/", listenerHandlers.GetListeners)
+	r.GET("/listeners/:id/about", listenerHandlers.GetListenerByID)
 
 	//Enrollments
-	r.GET("/listeners/:id/about/enrollments/program", handlers.SelectProgramEducation)
-	r.POST("listeners/:id/about/enrollments/program/record", handlers.RecordListenerOnProgram)
+	r.GET("/listeners/:id/about/enrollments/program", enrollmentHandlers.SelectProgramEducation)
+	r.POST("listeners/:id/about/enrollments/program/record", enrollmentHandlers.RecordListenerOnProgram)
 
 	//LevelEducation
-	r.GET("/levelEducation", handlers.GetAllLevelsEducation)
+	r.GET("/levelEducation", educationHandlers.GetAllLevelsEducation)
 
 	//DivisionsEducation
-	r.GET("/divisionsEducation", handlers.GetAllDivisions)
+	r.GET("/divisionsEducation", educationHandlers.GetAllDivisions)
 
 	//Educationtype
-	r.GET("/educationtypes", handlers.GetAllEducationTypes)
+	r.GET("/educationtypes", educationHandlers.GetAllEducationTypes)
 
 	//ProgramEducation
-	r.POST("/programeducation/create", handlers.CreateProgram)
-	r.DELETE("/programeducation/:id/delete", handlers.DeleteProgram)
-	r.PUT("/programeducation/:id/update", handlers.UpdateProgram)
-	r.POST("/programeducation", handlers.ReadProgram)
+	r.POST("/programeducation/create", programHandlers.CreateProgram)
+	r.DELETE("/programeducation/:id/delete", programHandlers.DeleteProgram)
+	r.PUT("/programeducation/:id/update", programHandlers.UpdateProgram)
+	r.POST("/programeducation", programHandlers.GetPrograms)
 
 	//documents
 
